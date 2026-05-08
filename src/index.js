@@ -1,6 +1,9 @@
 import express from 'express';
 import { PORT } from './config.js';
-import locationsRoutes from './routes/locations.routes.js';
+
+import usuarioRoutes from './routes/usuario.routes.js';
+import lugaresRoutes from './routes/lugares.routes.js';
+import capturaRoutes from './routes/captura.routes.js';
 
 const app = express();
 
@@ -8,7 +11,10 @@ const app = express();
 app.use(express.json()); // para entender los JSON que lleguen en el body
 
 // Routes
-app.use('/api', locationsRoutes);
+app.use('/api', usuarioRoutes);
+app.use('/api', lugaresRoutes);
+app.use('/api', capturaRoutes);
+
 
 // Ruta para manejar endpoints no encontrados
 app.use((req, res, next) => {
