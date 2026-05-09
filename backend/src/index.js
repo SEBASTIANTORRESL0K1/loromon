@@ -27,6 +27,10 @@ app.use((req, res, next) => {
 app.listen(PORT, async () => {
     console.log(`Server is running on port ${PORT}`);
     
+    // Log para depuración en Railway (solo host)
+    const dbHost = process.env.MYSQL_URL ? 'usando MYSQL_URL' : (process.env.MYSQLHOST || process.env.DB_HOST || 'localhost');
+    console.log(`Intentando conectar a la base de datos en: ${dbHost}`);
+    
     const maxRetries = 10;
     let retries = 0;
 
