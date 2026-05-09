@@ -32,24 +32,33 @@ export interface RankingEntry {
 
 const API_URL = (import.meta as any).env.VITE_API_URL;
 
-export interface RegisterData {
-  nombre_usuario: string;
-  correo: string;
-  contrasena: string;
-}
-
-export interface LoginData {
-  correo: string;
-  contrasena: string;
-}
+// Helper para obtener los encabezados con el token de seguridad que nos da el backend
+const getHeaders = () => {
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+  };
+  
+  const savedUser = localStorage.getItem('loromon_user');
+  if (savedUser) {
+    try {
+      const { token } = JSON.parse(savedUser);
+      if (token) {
+        // Estándar de la industria: enviar el token en el encabezado Authorization
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+    } catch (e) {
+      console.error('Error al parsear el usuario guardado:', e);
+    }
+  }
+  
+  return headers;
+};
 
 export const api = {
   register: async (data: RegisterData): Promise<Usuario> => {
     const response = await fetch(`${API_URL}/usuarios/register`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
     });
 
@@ -64,9 +73,7 @@ export const api = {
   login: async (data: LoginData): Promise<Usuario> => {
     const response = await fetch(`${API_URL}/usuarios/login`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
     });
 
@@ -79,7 +86,9 @@ export const api = {
   },
 
   getLugares: async (): Promise<Lugar[]> => {
-    const response = await fetch(`${API_URL}/lugares`);
+    const response = await fetch(`${API_URL}/lugares`, {
+      headers: getHeaders(), // Incluimos el token de forma segura
+    });
     if (!response.ok) throw new Error('Error al obtener los lugares');
     return response.json();
   },
@@ -87,9 +96,7 @@ export const api = {
   capturar: async (id_usuario: number, id_personaje: number): Promise<{ message: string; puntosObtenidos: number }> => {
     const response = await fetch(`${API_URL}/capturar`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: getHeaders(), // Incluimos el token para validar quién captura
       body: JSON.stringify({ id_usuario, id_personaje }),
     });
 
@@ -98,6 +105,14 @@ export const api = {
       throw new Error(errorData.message || 'Error al capturar el personaje');
     }
 
+    return response.json();
+  },
+
+  getRanking: async (): Promise<RankingEntry[]> => {
+    const response = await fetch(`${API_URL}/usuarios/ranking`, {
+      headers: getHeaders(),
+    });
+    if (!response.ok) throw new Error('Error al obtener el ranking');
     return response.json();
   },
 };

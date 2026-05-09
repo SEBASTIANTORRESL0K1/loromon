@@ -296,12 +296,17 @@ export function MapScreen({ onOpenCamera, user, location }: MapScreenProps) {
           height: 80,
           zIndex: 1100,
           boxShadow: '0 8px 32px rgba(99, 102, 241, 0.5)',
+          border: '3px solid rgba(255, 255, 255, 0.4)', // Borde sutil cuando está activo
           transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
           '&:hover': {
             transform: 'translateX(-50%) scale(1.1)',
+            border: '3px solid rgba(255, 255, 255, 0.8)',
           },
           '&.Mui-disabled': {
-            bgcolor: 'rgba(0,0,0,0.12)',
+            bgcolor: '#d1d5db', // Gris medio (más oscuro para contraste)
+            color: '#6b7280',   // Icono gris oscuro (visible pero apagado)
+            boxShadow: '0 2px 10px rgba(0,0,0,0.1)', // Sombra muy tenue para definir volumen
+            border: '3px solid #ffffff', 
           }
         }}
       >
