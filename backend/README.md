@@ -30,3 +30,32 @@ Este es un proyecto de Node.js y Express diseñado para ser desplegado fácilmen
     ```
 
 El servidor se iniciará en el puerto especificado (por defecto, 3000).
+
+## Despliegue con Docker
+
+Este proyecto está configurado para ejecutarse fácilmente usando Docker y Docker Compose.
+
+### Pasos para iniciar:
+
+1.  **Construir la imagen:**
+    Si es la primera vez o has hecho cambios en el `Dockerfile` o `package.json`:
+    ```bash
+    docker-compose build
+    ```
+
+2.  **Levantar los servicios:**
+    Este comando iniciará la base de datos MySQL y la API. La API esperará automáticamente a que la base de datos esté lista.
+    ```bash
+    docker-compose up
+    ```
+    *Nota: Si quieres ejecutarlo en segundo plano, añade el flag `-d`.*
+
+3.  **Detener y limpiar:**
+    Si deseas detener los contenedores:
+    ```bash
+    docker-compose down
+    ```
+    Si deseas borrar los contenedores y **eliminar los datos de la base de datos** (volúmenes) para un reinicio limpio:
+    ```bash
+    docker-compose down -v
+    ```
