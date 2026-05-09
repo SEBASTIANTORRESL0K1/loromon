@@ -28,11 +28,11 @@ export const getLugares = async (req, res) => {
             JOIN Personaje p2 ON l.id_personaje_2 = p2.id_personaje
         `);
 
-        // MySQL con JSON_OBJECT devuelve los objetos como strings, hay que parsearlos.
+        // MySQL2 con JSON_OBJECT puede devolver el objeto ya parseado o como string según la versión/config.
         const lugares = rows.map(lugar => ({
             ...lugar,
-            personaje1: JSON.parse(lugar.personaje1),
-            personaje2: JSON.parse(lugar.personaje2)
+            personaje1: typeof lugar.personaje1 === 'string' ? JSON.parse(lugar.personaje1) : lugar.personaje1,
+            personaje2: typeof lugar.personaje2 === 'string' ? JSON.parse(lugar.personaje2) : lugar.personaje2
         }));
 
         res.json(lugares);

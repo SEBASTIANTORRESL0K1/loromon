@@ -67,7 +67,8 @@ Autentica a un usuario y devuelve su información de perfil.
     "id_usuario": 1,
     "nombre_usuario": "AshKetchum",
     "correo": "ash@pueblopaleta.com",
-    "puntos": 1250
+    "puntos": 1250,
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
   }
   ```
 

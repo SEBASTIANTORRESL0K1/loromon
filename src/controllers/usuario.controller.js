@@ -1,6 +1,8 @@
 // src/controllers/usuario.controller.js
 import { pool } from '../database/db.js';
 import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import { JWT_SECRET } from '../config.js';
 
 const SALT_ROUNDS = 10;
 
@@ -63,12 +65,20 @@ export const loginUser = async (req, res) => {
             return res.status(401).json({ message: "Credenciales inválidas (contraseña incorrecta)." });
         }
 
-        // Respuesta exitosa (por ahora sin JWT, devolviendo datos básicos)
+        // Generar token JWT
+        const token = jwt.sign(
+            { id_usuario: usuario.id_usuario, nombre_usuario: usuario.nombre_usuario },
+            JWT_SECRET,
+            { expiresIn: '24h' }
+        );
+
+        // Respuesta exitosa con Token
         res.json({
             id_usuario: usuario.id_usuario,
             nombre_usuario: usuario.nombre_usuario,
             correo: usuario.correo,
-            puntos: usuario.puntos
+            puntos: usuario.puntos,
+            token: token
         });
 
     } catch (error) {

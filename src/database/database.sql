@@ -57,10 +57,10 @@ CREATE TABLE Captura (
 -- Asumimos rutas de modelos 3D de ejemplo
 INSERT INTO Personaje (id_personaje, nombre_personaje, ruta_modelo, valor_puntos, es_especial) VALUES
 (1, 'Ingeniero en Software', 'models/ingeniero.glb', 100, FALSE),
-(2, 'Telemático', 'models/telematico.glb', 100, FALSE),
-(3, 'Psicólogo', 'models/psicologo.glb', 100, FALSE),
-(4, 'Psicóloga', 'models/psicologa.glb', 100, FALSE),
-(5, 'Médico', 'models/medico.glb', 100, FALSE),
+(2, 'Telematico', 'models/telematico.glb', 100, FALSE),
+(3, 'Psicologo', 'models/psicologo.glb', 100, FALSE),
+(4, 'Psicologa', 'models/psicologa.glb', 100, FALSE),
+(5, 'Medico', 'models/medico.glb', 100, FALSE),
 (6, 'Cirujana', 'models/cirujana.glb', 100, FALSE),
 (7, 'Enfermero', 'models/enfermero.glb', 100, FALSE),
 (8, 'Enfermera', 'models/enfermera.glb', 100, FALSE),
@@ -76,12 +76,12 @@ INSERT INTO Personaje (id_personaje, nombre_personaje, ruta_modelo, valor_puntos
 
 -- Insertar Lugares con sus coordenadas (centroide calculado) y personajes asignados
 INSERT INTO Lugares (nombre, latitud, longitud, id_personaje_1, id_personaje_2) VALUES
-('Facultad de Telemática', 19.249120, -103.697359, 1, 2),
-('Facultad de Psicología', 19.248551, -103.697227, 3, 4),
+('Facultad de Telematica', 19.249120, -103.697359, 1, 2),
+('Facultad de Psicologia', 19.248551, -103.697227, 3, 4),
 ('Facultad de Medicina', 19.247356, -103.698054, 5, 6),
 ('Facultad de Enfermeria', 19.247707, -103.698578, 7, 8),
 ('Facultad de Trabajo Social', 19.248092, -103.698384, 9, 10),
-('Rectoría', 19.248888, -103.698741, 11, 12),
+('Rectoria', 19.248888, -103.698741, 11, 12),
 ('CEI', 19.249439, -103.698500, 13, 14),
 ('Servicios', 19.249608, -103.698995, 15, 16);
 
