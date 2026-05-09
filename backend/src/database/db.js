@@ -7,8 +7,10 @@ import {
     DB_PORT
 } from '../config.js';
 
-// create the connection to database
-export const pool = createPool({
+// Priorizar URL de conexión completa (Railway)
+const connectionUri = process.env.MYSQL_URL || process.env.DATABASE_URL;
+
+export const pool = createPool(connectionUri || {
     host: DB_HOST,
     user: DB_USER,
     password: DB_PASSWORD,
