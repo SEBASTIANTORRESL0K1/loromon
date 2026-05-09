@@ -27,7 +27,7 @@ app.use((req, res, next) => {
 app.listen(PORT, async () => {
     console.log(`Server is running on port ${PORT}`);
     
-    const maxRetries = 5;
+    const maxRetries = 10;
     let retries = 0;
 
     while (retries < maxRetries) {
