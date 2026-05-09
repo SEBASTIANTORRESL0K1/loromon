@@ -40,6 +40,44 @@ Crea una nueva cuenta de usuario en el sistema.
 
 ---
 
+## Iniciar Sesión
+
+Autentica a un usuario y devuelve su información de perfil.
+
+- **URL**: `/api/usuarios/login`
+- **Método**: `POST`
+- **Cuerpo (Body)**:
+  ```json
+  {
+    "correo": "string",
+    "contrasena": "string"
+  }
+  ```
+
+- **Ejemplo cURL**:
+  ```bash
+  curl -X POST http://localhost:3001/api/usuarios/login \
+    -H "Content-Type: application/json" \
+    -d '{"correo": "ash@pueblopaleta.com", "contrasena": "pika123"}'
+  ```
+
+- **Ejemplo de Respuesta Exitosa (200 OK)**:
+  ```json
+  {
+    "id_usuario": 1,
+    "nombre_usuario": "AshKetchum",
+    "correo": "ash@pueblopaleta.com",
+    "puntos": 1250
+  }
+  ```
+
+- **Posibles Errores**:
+  - `400 Bad Request`: Faltan campos obligatorios.
+  - `401 Unauthorized`: Correo o contraseña incorrectos.
+  - `500 Internal Server Error`: Error en el servidor o base de datos.
+
+---
+
 ## Obtener Ranking
 
 Retorna los 100 mejores usuarios ordenados por puntaje.

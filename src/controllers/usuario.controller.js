@@ -38,6 +38,45 @@ export const registerUser = async (req, res) => {
     }
 };
 
+// Iniciar sesión
+export const loginUser = async (req, res) => {
+    const { correo, contrasena } = req.body;
+
+    if (!correo || !contrasena) {
+        return res.status(400).json({ message: "Por favor, proporciona correo y contraseña." });
+    }
+
+    try {
+        // Buscar el usuario por correo
+        const [rows] = await pool.query("SELECT * FROM Usuario WHERE correo = ?", [correo]);
+
+        if (rows.length === 0) {
+            return res.status(401).json({ message: "Credenciales inválidas (correo no encontrado)." });
+        }
+
+        const usuario = rows[0];
+
+        // Comparar contraseñas
+        const isMatch = await bcrypt.compare(contrasena, usuario.contrasena);
+
+        if (!isMatch) {
+            return res.status(401).json({ message: "Credenciales inválidas (contraseña incorrecta)." });
+        }
+
+        // Respuesta exitosa (por ahora sin JWT, devolviendo datos básicos)
+        res.json({
+            id_usuario: usuario.id_usuario,
+            nombre_usuario: usuario.nombre_usuario,
+            correo: usuario.correo,
+            puntos: usuario.puntos
+        });
+
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: 'Algo salió mal al iniciar sesión.' });
+    }
+};
+
 // Obtener el ranking de jugadores
 export const getRanking = async (req, res) => {
     try {
