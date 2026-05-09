@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Box,
   Card,
@@ -7,87 +7,234 @@ import {
   Fab,
   Chip,
   Paper,
+  CircularProgress,
 } from '@mui/material';
-import { CameraAlt, MyLocation } from '@mui/icons-material';
-import { Usuario } from '../services/api';
+import { 
+  CameraAlt, 
+  Computer, 
+  MedicalServices, 
+  Groups, 
+  Healing, 
+  Psychology, 
+  AccountBalance, 
+  Settings, 
+  MenuBook,
+  Place,
+  Restaurant
+} from '@mui/icons-material';
+import { renderToString } from 'react-dom/server';
+import { MapContainer, TileLayer, Marker, Popup, useMap, Circle } from 'react-leaflet';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
+import { Usuario, api, Lugar } from '../services/api';
+import { calculateDistance } from '../hooks/useGeolocation';
+
+// Corregir iconos de Leaflet (problema conocido en builds de JS)
+import markerIcon from 'leaflet/dist/images/marker-icon.png';
+import markerShadow from 'leaflet/dist/images/marker-shadow.png';
+
+const DefaultIcon = L.icon({
+  iconUrl: markerIcon,
+  shadowUrl: markerShadow,
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+});
+
+L.Marker.prototype.options.icon = DefaultIcon;
+
+// Función para obtener icono y color según la facultad
+const getFacultyStyle = (name: string) => {
+  const n = name.toLowerCase();
+  
+  if (n.includes('telemática') || n.includes('telematica')) 
+    return { icon: <Computer />, color: '#3b82f6' };
+  
+  if (n.includes('medicina')) 
+    return { icon: <MedicalServices />, color: '#ef4444' };
+  
+  if (n.includes('trabajo social')) 
+    return { icon: <Groups />, color: '#10b981' };
+  
+  if (n.includes('enfermería') || n.includes('enfermeria')) 
+    return { icon: <Healing />, color: '#ec4899' };
+  
+  if (n.includes('psicología') || n.includes('psicologia')) 
+    return { icon: <Psychology />, color: '#8b5cf6' };
+  
+  if (n.includes('rectoría') || n.includes('rectoria')) 
+    return { icon: <AccountBalance />, color: '#f59e0b' };
+  
+  if (n.includes('servicios')) 
+    return { icon: <Restaurant />, color: '#f97316' };
+  
+  if (n.includes('cei')) 
+    return { icon: <MenuBook />, color: '#14b8a6' };
+    
+  return { icon: <Place />, color: '#6366f1' }; // Default
+};
+
+const UserIcon = L.divIcon({
+  className: 'user-location-marker',
+  html: '<div style="background-color: #6366f1; width: 18px; height: 18px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 10px rgba(0,0,0,0.5);"></div>',
+  iconSize: [24, 24],
+  iconAnchor: [12, 12],
+});
 
 interface MapScreenProps {
   onOpenCamera: () => void;
   user: Usuario;
+  location: { latitude: number | null; longitude: number | null };
 }
 
-const faculties = [
-  { id: 1, name: 'Facultad de Ingeniería', lat: -12.0564, lng: -77.0844 },
-  { id: 2, name: 'Facultad de Medicina', lat: -12.0574, lng: -77.0834 },
-  { id: 3, name: 'Facultad de Derecho', lat: -12.0554, lng: -77.0854 },
-  { id: 4, name: 'Facultad de Economía', lat: -12.0584, lng: -77.0824 },
-];
+const UCOL_COORDS: [number, number] = [19.248065428523848, -103.69739247680202];
 
-export function MapScreen({ onOpenCamera, user }: MapScreenProps) {
-  const [isNearFaculty] = useState(true);
+// Componente para actualizar la vista del mapa cuando cambia la ubicación
+function MapUpdater({ center, zoom }: { center: [number, number]; zoom: number }) {
+  const map = useMap();
+  useEffect(() => {
+    map.setView(center, zoom);
+  }, [center, zoom, map]);
+  return null;
+}
+
+export function MapScreen({ onOpenCamera, user, location }: MapScreenProps) {
+  const [lugares, setLugares] = useState<Lugar[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [isNearFaculty, setIsNearFaculty] = useState(false);
+  const [closestLugar, setClosestLugar] = useState<Lugar | null>(null);
+
+  // Cargar lugares desde la API
+  useEffect(() => {
+    const fetchLugares = async () => {
+      try {
+        const data = await api.getLugares();
+        setLugares(data);
+      } catch (error) {
+        console.error('Error al cargar lugares:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchLugares();
+  }, []);
+
+  // Validar proximidad cuando cambia la ubicación o los lugares
+  useEffect(() => {
+    if (location.latitude && location.longitude && lugares.length > 0) {
+      let foundNear = false;
+      let nearest = null;
+
+      lugares.forEach(lugar => {
+        const dist = calculateDistance(
+          location.latitude!,
+          location.longitude!,
+          parseFloat(lugar.latitud),
+          parseFloat(lugar.longitud)
+        );
+
+        if (dist < 25) { // Radio de 25 metros
+          foundNear = true;
+          nearest = lugar;
+        }
+      });
+
+      setIsNearFaculty(foundNear);
+      setClosestLugar(nearest);
+    }
+  }, [location, lugares]);
+
+  const mapCenter: [number, number] = location.latitude && location.longitude 
+    ? [location.latitude, location.longitude] 
+    : UCOL_COORDS;
+
+  const zoomLevel = location.latitude ? 18 : 16;
+
+  if (loading) {
+    return (
+      <Box sx={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: 'background.default' }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
 
   return (
-    <Box
-      sx={{
-        height: '100vh',
-        position: 'relative',
-        bgcolor: '#E8F4EA',
-        overflow: 'hidden',
-      }}
-    >
-      {/* Mapa simulado */}
-      <Box
-        sx={{
-          width: '100%',
-          height: '100%',
-          position: 'relative',
-          backgroundImage: 'linear-gradient(45deg, #E8F4EA 25%, #D4E9D7 25%, #D4E9D7 50%, #E8F4EA 50%, #E8F4EA 75%, #D4E9D7 75%, #D4E9D7)',
-          backgroundSize: '50px 50px',
-        }}
+    <Box sx={{ height: '100vh', position: 'relative', overflow: 'hidden' }}>
+      {/* Mapa de Leaflet */}
+      <MapContainer
+        center={mapCenter}
+        zoom={zoomLevel}
+        style={{ height: '100%', width: '100%', zIndex: 1 }}
+        zoomControl={false}
       >
-        {/* Ubicación del usuario */}
-        <Box
-          sx={{
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            zIndex: 2,
-          }}
-        >
-          <MyLocation sx={{ fontSize: 40, color: 'primary.main' }} />
-        </Box>
+        <TileLayer
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        />
+        
+        <MapUpdater center={mapCenter} zoom={zoomLevel} />
 
-        {/* Marcadores de facultades */}
-        {faculties.map((faculty) => (
-          <Box
-            key={faculty.id}
-            sx={{
-              position: 'absolute',
-              top: `${30 + faculty.id * 10}%`,
-              left: `${20 + faculty.id * 15}%`,
-              zIndex: 1,
-            }}
-          >
-            <Paper
-              elevation={3}
-              sx={{
-                p: 1,
-                bgcolor: 'secondary.light',
-                borderRadius: 2,
-                cursor: 'pointer',
-                '&:hover': {
-                  bgcolor: 'secondary.main',
-                },
-              }}
-            >
-              <Typography variant="caption" sx={{ fontSize: '0.7rem', fontWeight: 600 }}>
-                📍 {faculty.name}
-              </Typography>
-            </Paper>
-          </Box>
-        ))}
-      </Box>
+        {/* Marcador del Usuario */}
+        {location.latitude && location.longitude && (
+          <Marker position={[location.latitude, location.longitude]} icon={UserIcon}>
+            <Popup>¡Estás aquí!</Popup>
+          </Marker>
+        )}
+
+        {/* Marcadores de Facultades/Lugares */}
+        {lugares.map((lugar) => {
+          const position: [number, number] = [parseFloat(lugar.latitud), parseFloat(lugar.longitud)];
+          const style = getFacultyStyle(lugar.nombre);
+          
+          const CustomIcon = L.divIcon({
+            className: 'custom-faculty-marker',
+            html: `
+              <div style="
+                background-color: ${style.color}; 
+                width: 36px; 
+                height: 36px; 
+                border-radius: 50% 50% 50% 0; 
+                transform: rotate(-45deg); 
+                display: flex; 
+                align-items: center; 
+                justify-content: center; 
+                border: 2px solid white;
+                box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+              ">
+                <div style="transform: rotate(45deg); color: white; display: flex;">
+                  ${renderToString(style.icon)}
+                </div>
+              </div>
+            `,
+            iconSize: [36, 36],
+            iconAnchor: [18, 36],
+          });
+
+          return (
+            <Box key={lugar.id_lugar}>
+              <Marker position={position} icon={CustomIcon}>
+                <Popup>
+                  <Typography variant="subtitle2" fontWeight="700" sx={{ color: style.color }}>
+                    {lugar.nombre}
+                  </Typography>
+                </Popup>
+              </Marker>
+              
+              {/* Radio de captura (Geocerca) con el color de la facultad */}
+              <Circle
+                center={position}
+                pathOptions={{
+                  fillColor: style.color,
+                  fillOpacity: 0.12,
+                  color: style.color,
+                  weight: 2,
+                  dashArray: '5, 10'
+                }}
+                radius={25}
+              />
+            </Box>
+          );
+        })}
+      </MapContainer>
 
       {/* Cabecera - Perfil y puntos */}
       <Card
@@ -123,7 +270,7 @@ export function MapScreen({ onOpenCamera, user }: MapScreenProps) {
               {user.nombre_usuario}
             </Typography>
             <Typography variant="caption" color="text.secondary">
-              Entrenador LoroMon
+              Explorando Colima
             </Typography>
           </Box>
         </Box>
@@ -142,28 +289,32 @@ export function MapScreen({ onOpenCamera, user }: MapScreenProps) {
         onClick={onOpenCamera}
         sx={{
           position: 'absolute',
-          bottom: 70, // Ajustado para que esté justo encima de la barra (aprox 56px) con un margen pequeño
+          bottom: 70,
           left: '50%',
           transform: 'translateX(-50%)',
           width: 80,
           height: 80,
           zIndex: 1100,
           boxShadow: '0 8px 32px rgba(99, 102, 241, 0.5)',
+          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
           '&:hover': {
-            transform: 'translateX(-50%) scale(1.05)',
+            transform: 'translateX(-50%) scale(1.1)',
+          },
+          '&.Mui-disabled': {
+            bgcolor: 'rgba(0,0,0,0.12)',
           }
         }}
       >
         <CameraAlt sx={{ fontSize: 40 }} />
       </Fab>
 
-      {/* Indicador de estado */}
+      {/* Indicador de estado o proximidad */}
       {!isNearFaculty && (
         <Paper
           elevation={3}
           sx={{
             position: 'absolute',
-            bottom: 165, // Ajustado proporcionalmente
+            bottom: 165,
             left: '50%',
             transform: 'translateX(-50%)',
             px: 3,
@@ -171,10 +322,35 @@ export function MapScreen({ onOpenCamera, user }: MapScreenProps) {
             borderRadius: 2,
             bgcolor: 'rgba(0, 0, 0, 0.8)',
             zIndex: 1100,
+            width: 'max-content',
+            maxWidth: '90%'
           }}
         >
-          <Typography variant="body2" color="white">
-            Acércate a una facultad para capturar
+          <Typography variant="body2" color="white" textAlign="center">
+            Busca un marcador y acércate a menos de 25m
+          </Typography>
+        </Paper>
+      )}
+
+      {isNearFaculty && closestLugar && (
+        <Paper
+          elevation={3}
+          sx={{
+            position: 'absolute',
+            bottom: 165,
+            left: '50%',
+            transform: 'translateX(-50%)',
+            px: 3,
+            py: 1,
+            borderRadius: 2,
+            bgcolor: 'success.main',
+            zIndex: 1100,
+            width: 'max-content',
+            maxWidth: '90%'
+          }}
+        >
+          <Typography variant="body2" color="white" fontWeight="700">
+            📍 Estás en {closestLugar.nombre}
           </Typography>
         </Paper>
       )}

@@ -77,4 +77,27 @@ export const api = {
 
     return response.json();
   },
+
+  getLugares: async (): Promise<Lugar[]> => {
+    const response = await fetch(`${API_URL}/lugares`);
+    if (!response.ok) throw new Error('Error al obtener los lugares');
+    return response.json();
+  },
+
+  capturar: async (id_usuario: number, id_personaje: number): Promise<{ message: string; puntosObtenidos: number }> => {
+    const response = await fetch(`${API_URL}/capturar`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ id_usuario, id_personaje }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || 'Error al capturar el personaje');
+    }
+
+    return response.json();
+  },
 };

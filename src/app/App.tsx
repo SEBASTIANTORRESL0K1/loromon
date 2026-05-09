@@ -6,8 +6,9 @@ import { ARCameraScreen } from './components/ARCameraScreen';
 import { ProfileScreen } from './components/ProfileScreen';
 import { BottomNavigation, BottomNavigationAction, Paper } from '@mui/material';
 import { Map, Person } from '@mui/icons-material';
-import { Toaster } from 'sonner';
+import { Toaster, toast } from 'sonner';
 import { Usuario } from './services/api';
+import { useGeolocation } from './hooks/useGeolocation';
 
 const theme = createTheme({
   palette: {
@@ -59,6 +60,16 @@ export default function App() {
   const [currentScreen, setCurrentScreen] = useState<Screen>('auth');
   const [user, setUser] = useState<Usuario | null>(null);
   const [bottomNavValue, setBottomNavValue] = useState(0);
+
+  // Hook de ubicación (solo se activa si hay usuario)
+  const { latitude, longitude, error: locationError } = useGeolocation();
+
+  // Mostrar error de ubicación si ocurre
+  useEffect(() => {
+    if (locationError && user) {
+      toast.error(locationError, { id: 'location-error' });
+    }
+  }, [locationError, user]);
 
   // Recuperar sesión al cargar
   useEffect(() => {
@@ -112,7 +123,11 @@ export default function App() {
 
         {user && currentScreen === 'map' && (
           <>
-            <MapScreen onOpenCamera={handleOpenCamera} user={user} />
+            <MapScreen 
+              onOpenCamera={handleOpenCamera} 
+              user={user} 
+              location={{ latitude, longitude }} 
+            />
             <Paper
               sx={{ position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 1000 }}
               elevation={3}

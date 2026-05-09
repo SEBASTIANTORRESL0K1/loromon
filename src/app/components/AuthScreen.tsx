@@ -179,6 +179,7 @@ export function AuthScreen({ onLogin }: AuthScreenProps) {
                   error={!!usernameError}
                   helperText={usernameError}
                   disabled={loading}
+                  autoComplete="username"
                   slotProps={{
                     input: {
                       startAdornment: (
@@ -201,6 +202,7 @@ export function AuthScreen({ onLogin }: AuthScreenProps) {
                 error={!!emailError}
                 helperText={emailError}
                 disabled={loading}
+                autoComplete="email"
                 slotProps={{
                   input: {
                     startAdornment: (
@@ -221,6 +223,7 @@ export function AuthScreen({ onLogin }: AuthScreenProps) {
                 error={!!passwordError}
                 helperText={passwordError}
                 disabled={loading}
+                autoComplete={isLogin ? "current-password" : "new-password"}
                 slotProps={{
                   input: {
                     startAdornment: (
