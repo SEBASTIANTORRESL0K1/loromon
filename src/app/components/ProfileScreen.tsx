@@ -54,62 +54,106 @@ export function ProfileScreen({ onLogout, user }: ProfileScreenProps) {
   return (
     <Box
       sx={{
-        minHeight: '100vh',
+        width: '100%',
         bgcolor: 'background.default',
-        pb: 10, // Espacio para la navegación inferior
+        pb: 4,
       }}
     >
       {/* Cabecera - Perfil */}
       <Card
         elevation={0}
         sx={{
-          p: 4,
-          pt: 6,
+          p: { xs: 3, sm: 4 },
+          pt: { xs: 4, sm: 5 },
           borderRadius: 0,
           background: 'linear-gradient(135deg, #6366f1 0%, #a855f7 100%)',
-          color: 'white'
+          color: 'white',
         }}
       >
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
-          <Avatar
-            sx={{
-              bgcolor: 'rgba(255, 255, 255, 0.2)',
-              color: 'white',
-              width: 80,
-              height: 80,
-              fontSize: '2.5rem',
-              fontWeight: 800,
-              border: '4px solid rgba(255, 255, 255, 0.3)'
-            }}
-          >
-            {user.nombre_usuario[0].toUpperCase()}
-          </Avatar>
-          <Box sx={{ flex: 1 }}>
-            <Typography variant="h4" fontWeight="800" sx={{ letterSpacing: -1 }}>
-              {user.nombre_usuario}
-            </Typography>
-            <Typography variant="body2" sx={{ opacity: 0.9, fontWeight: 500 }}>
-              Entrenador LoroMon • Nivel 1
-            </Typography>
-            <Chip
-              icon={<EmojiEvents sx={{ color: 'white !important' }} />}
-              label={`${user.puntos || 0} puntos totales`}
-              size="small"
+        <Box 
+          sx={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'space-between',
+            gap: { xs: 2, sm: 3 } 
+          }}
+        >
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 2, sm: 3 } }}>
+            <Avatar
               sx={{
-                mt: 1.5,
                 bgcolor: 'rgba(255, 255, 255, 0.2)',
                 color: 'white',
-                fontWeight: 700,
-                border: '1px solid rgba(255, 255, 255, 0.3)'
+                width: { xs: 70, sm: 90 },
+                height: { xs: 70, sm: 90 },
+                fontSize: { xs: '2rem', sm: '2.8rem' },
+                fontWeight: 800,
+                border: '4px solid rgba(255, 255, 255, 0.3)',
+                boxShadow: '0 4px 14px rgba(0,0,0,0.15)'
               }}
-            />
+            >
+              {user.nombre_usuario[0].toUpperCase()}
+            </Avatar>
+            <Box>
+              <Typography 
+                variant="h4" 
+                fontWeight="800" 
+                sx={{ 
+                  letterSpacing: -1, 
+                  fontSize: { xs: '1.6rem', sm: '2.2rem' },
+                  lineHeight: 1.1,
+                  mb: 0.5
+                }}
+              >
+                {user.nombre_usuario}
+              </Typography>
+              <Typography variant="body2" sx={{ opacity: 0.9, fontWeight: 600, mb: 1 }}>
+                Entrenador LoroMon
+              </Typography>
+              <Chip
+                icon={<EmojiEvents sx={{ color: 'white !important', fontSize: '1.1rem' }} />}
+                label={`${user.puntos || 0} pts`}
+                sx={{
+                  bgcolor: 'rgba(255, 255, 255, 0.2)',
+                  color: 'white',
+                  fontWeight: 800,
+                  border: '1px solid rgba(255, 255, 255, 0.3)',
+                  height: 28,
+                  fontSize: '0.85rem'
+                }}
+              />
+            </Box>
           </Box>
+
+          {/* Botón de cerrar sesión rediseñado */}
+          <Button
+            variant="contained"
+            onClick={onLogout}
+            startIcon={<Logout />}
+            sx={{
+              bgcolor: '#ffffff', // Fondo blanco sólido para máximo contraste
+              color: 'primary.main', // Texto en color principal
+              '&:hover': { 
+                bgcolor: '#f8fafc',
+                transform: 'translateY(-2px)' 
+              },
+              textTransform: 'none',
+              borderRadius: 3,
+              fontWeight: 700,
+              px: { xs: 2, sm: 3 },
+              py: 1,
+              boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+              transition: 'all 0.2s',
+              minWidth: 'fit-content'
+            }}
+          >
+            Salir
+          </Button>
         </Box>
       </Card>
 
-      {/* Pestañas */}
-      <Box sx={{ px: 2, mt: -2 }}>
-        <Paper elevation={4} sx={{ borderRadius: 3, overflow: 'hidden' }}>
+      {/* Pestañas - Ya no tienen margen negativo para evitar solapamientos */}
+      <Box sx={{ px: { xs: 1.5, sm: 2 }, mt: 2 }}>
+        <Paper elevation={2} sx={{ borderRadius: 3, overflow: 'hidden' }}>
           <Tabs
             value={currentTab}
             onChange={(_, newValue) => setCurrentTab(newValue)}
@@ -117,8 +161,8 @@ export function ProfileScreen({ onLogout, user }: ProfileScreenProps) {
             indicatorColor="primary"
             textColor="primary"
           >
-            <Tab label="Inventario" sx={{ fontWeight: 700, py: 2 }} />
-            <Tab label="Ranking" sx={{ fontWeight: 700, py: 2 }} />
+            <Tab label="Inventario" sx={{ fontWeight: 700, py: 1.5, fontSize: { xs: '0.8rem', sm: '0.875rem' } }} />
+            <Tab label="Ranking" sx={{ fontWeight: 700, py: 1.5, fontSize: { xs: '0.8rem', sm: '0.875rem' } }} />
           </Tabs>
         </Paper>
 
@@ -220,27 +264,6 @@ export function ProfileScreen({ onLogout, user }: ProfileScreenProps) {
             </List>
           )}
         </Box>
-
-        {/* Botón de cerrar sesión */}
-        <Button
-          variant="outlined"
-          color="error"
-          fullWidth
-          startIcon={<Logout />}
-          onClick={onLogout}
-          sx={{
-            mt: 6,
-            py: 1.5,
-            borderRadius: 3,
-            borderWidth: 2,
-            fontWeight: 700,
-            '&:hover': {
-              borderWidth: 2,
-            }
-          }}
-        >
-          Cerrar sesión
-        </Button>
       </Box>
     </Box>
   );

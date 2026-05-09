@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ThemeProvider, createTheme, CssBaseline } from '@mui/material';
+import { ThemeProvider, createTheme, CssBaseline, Box } from '@mui/material';
 import { AuthScreen } from './components/AuthScreen';
 import { MapScreen } from './components/MapScreen';
 import { ARCameraScreen } from './components/ARCameraScreen';
@@ -14,10 +14,10 @@ const theme = createTheme({
   palette: {
     mode: 'light',
     primary: {
-      main: '#6366f1', // Indigo moderno
+      main: '#6366f1',
     },
     secondary: {
-      main: '#ec4899', // Rosa vibrante
+      main: '#ec4899',
     },
     background: {
       default: '#f8fafc',
@@ -26,29 +26,18 @@ const theme = createTheme({
   },
   typography: {
     fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
-    h3: {
-      fontWeight: 800,
-    },
+    h3: { fontWeight: 800 },
   },
-  shape: {
-    borderRadius: 12,
-  },
+  shape: { borderRadius: 12 },
   components: {
     MuiButton: {
       styleOverrides: {
-        root: {
-          borderRadius: 12,
-          textTransform: 'none',
-          fontWeight: 600,
-        },
+        root: { borderRadius: 12, textTransform: 'none', fontWeight: 600 },
       },
     },
     MuiCard: {
       styleOverrides: {
-        root: {
-          borderRadius: 16,
-          boxShadow: '0 4px 12px 0 rgba(0,0,0,0.05)',
-        },
+        root: { borderRadius: 16, boxShadow: '0 4px 12px 0 rgba(0,0,0,0.05)' },
       },
     },
   },
@@ -61,17 +50,14 @@ export default function App() {
   const [user, setUser] = useState<Usuario | null>(null);
   const [bottomNavValue, setBottomNavValue] = useState(0);
 
-  // Hook de ubicación (solo se activa si hay usuario)
   const { latitude, longitude, error: locationError } = useGeolocation();
 
-  // Mostrar error de ubicación si ocurre
   useEffect(() => {
     if (locationError && user) {
       toast.error(locationError, { id: 'location-error' });
     }
   }, [locationError, user]);
 
-  // Recuperar sesión al cargar
   useEffect(() => {
     const savedUser = localStorage.getItem('loromon_user');
     if (savedUser) {
@@ -94,17 +80,9 @@ export default function App() {
     setBottomNavValue(0);
   };
 
-  const handleOpenCamera = () => {
-    setCurrentScreen('camera');
-  };
-
-  const handleCapture = () => {
-    setCurrentScreen('map');
-  };
-
-  const handleCloseCamera = () => {
-    setCurrentScreen('map');
-  };
+  const handleOpenCamera = () => setCurrentScreen('camera');
+  const handleCapture = () => setCurrentScreen('map');
+  const handleCloseCamera = () => setCurrentScreen('map');
 
   const handleBottomNavChange = (_: any, newValue: number) => {
     setBottomNavValue(newValue);
@@ -116,57 +94,57 @@ export default function App() {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <Toaster position="top-center" richColors />
-      <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-        {!user && currentScreen === 'auth' && (
-          <AuthScreen onLogin={handleLogin} />
-        )}
+      
+      <Box sx={{ 
+        height: '100vh', 
+        display: 'flex', 
+        flexDirection: 'column',
+        bgcolor: 'background.default',
+        overflow: 'hidden'
+      }}>
+        
+        {/* Área de Contenido Principal */}
+        <Box sx={{ 
+          flex: 1, 
+          position: 'relative', 
+          overflowY: currentScreen === 'profile' ? 'auto' : 'hidden' 
+        }}>
+          {!user && currentScreen === 'auth' && (
+            <AuthScreen onLogin={handleLogin} />
+          )}
 
-        {user && currentScreen === 'map' && (
-          <>
+          {user && currentScreen === 'map' && (
             <MapScreen 
               onOpenCamera={handleOpenCamera} 
               user={user} 
               location={{ latitude, longitude }} 
             />
-            <Paper
-              sx={{ position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 1000 }}
-              elevation={3}
-            >
-              <BottomNavigation
-                value={bottomNavValue}
-                onChange={handleBottomNavChange}
-                showLabels
-              >
-                <BottomNavigationAction label="Mapa" icon={<Map />} />
-                <BottomNavigationAction label="Perfil" icon={<Person />} />
-              </BottomNavigation>
-            </Paper>
-          </>
-        )}
+          )}
 
-        {user && currentScreen === 'camera' && (
-          <ARCameraScreen onCapture={handleCapture} onClose={handleCloseCamera} />
-        )}
+          {user && currentScreen === 'camera' && (
+            <ARCameraScreen onCapture={handleCapture} onClose={handleCloseCamera} />
+          )}
 
-        {user && currentScreen === 'profile' && (
-          <>
+          {user && currentScreen === 'profile' && (
             <ProfileScreen onLogout={handleLogout} user={user} />
-            <Paper
-              sx={{ position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 1000 }}
-              elevation={3}
+          )}
+        </Box>
+
+        {/* Menú de Navegación Inferior (Solo visible si hay usuario y no está en cámara) */}
+        {user && currentScreen !== 'auth' && currentScreen !== 'camera' && (
+          <Paper elevation={10} sx={{ borderRadius: 0 }}>
+            <BottomNavigation
+              value={bottomNavValue}
+              onChange={handleBottomNavChange}
+              showLabels
+              sx={{ height: 65 }}
             >
-              <BottomNavigation
-                value={bottomNavValue}
-                onChange={handleBottomNavChange}
-                showLabels
-              >
-                <BottomNavigationAction label="Mapa" icon={<Map />} />
-                <BottomNavigationAction label="Perfil" icon={<Person />} />
-              </BottomNavigation>
-            </Paper>
-          </>
+              <BottomNavigationAction label="Mapa" icon={<Map />} />
+              <BottomNavigationAction label="Perfil" icon={<Person />} />
+            </BottomNavigation>
+          </Paper>
         )}
-      </div>
+      </Box>
     </ThemeProvider>
   );
 }
