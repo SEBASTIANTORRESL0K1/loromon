@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Box,
   Card,
@@ -15,7 +15,7 @@ import {
   Paper,
 } from '@mui/material';
 import { Logout, EmojiEvents } from '@mui/icons-material';
-import { Usuario } from '../services/api';
+import { Usuario, RankingEntry, api } from '../services/api';
 
 interface ProfileScreenProps {
   onLogout: () => void;
@@ -31,26 +31,37 @@ const capturedLoromons = [
   { id: 'loromon-6', name: 'Artista LoroMon', rarity: 2, emoji: '🎨' },
 ];
 
-const rankingData = [
-  { id: 'rank-1', username: 'ProGamer123', points: 3450, avatar: 'P' },
-  { id: 'rank-2', username: 'LoroMaster', points: 3200, avatar: 'L' },
-  { id: 'rank-3', username: 'CaptureKing', points: 2890, avatar: 'C' },
-  { id: 'rank-5', username: 'NewbieHunter', points: 980, avatar: 'N' },
-];
+const rankingData: RankingEntry[] = [];
 
 export function ProfileScreen({ onLogout, user }: ProfileScreenProps) {
   const [currentTab, setCurrentTab] = useState(0);
+  const [ranking, setRanking] = useState<RankingEntry[]>([]);
+  const [loadingRanking, setLoadingRanking] = useState(false);
+  const [rankingError, setRankingError] = useState<string | null>(null);
 
   const getRarityStars = (rarity: number) => '⭐'.repeat(rarity);
 
-  // Mezclamos al usuario real con el ranking simulado
-  const fullRanking = [...rankingData, { 
-    id: 'user-rank', 
-    username: user.nombre_usuario, 
-    points: user.puntos || 0, 
-    avatar: user.nombre_usuario[0].toUpperCase() 
-  }].sort((a, b) => b.points - a.points);
+  const fetchRanking = async () => {
+    setLoadingRanking(true);
+    setRankingError(null);
+    try {
+      const data = await api.getRanking();
+      setRanking(data);
+    } catch (error) {
+      console.error('Error fetching ranking:', error);
+      setRankingError('No se pudo cargar el ranking. Intente nuevamente.');
+    } finally {
+      setLoadingRanking(false);
+    }
+  };
 
+  useEffect(() => {
+    if (currentTab === 1) {
+      fetchRanking();
+    }
+  }, [currentTab]);
+
+  const fullRanking = [...ranking].sort((a, b) => b.puntos - a.puntos);
   return (
     <Box
       sx={{
@@ -211,57 +222,79 @@ export function ProfileScreen({ onLogout, user }: ProfileScreenProps) {
 
           {/* Ranking Tab */}
           {currentTab === 1 && (
-            <List sx={{ bgcolor: 'background.paper', borderRadius: 3, elevation: 1 }}>
-              {fullRanking.map((player, index) => (
-                <ListItem
-                  key={player.id}
-                  sx={{
-                    px: 3,
-                    py: 2,
-                    borderBottom: index < fullRanking.length - 1 ? '1px solid' : 'none',
-                    borderColor: 'divider',
-                    bgcolor: player.username === user.nombre_usuario ? 'primary.50' : 'transparent',
-                  }}
-                >
-                  <Box
-                    sx={{
-                      minWidth: 40,
-                      mr: 2,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                    }}
-                  >
-                    {index < 3 ? (
-                      <EmojiEvents
+            <Box>
+              {loadingRanking && (
+                <Typography variant="body1" sx={{ textAlign: 'center', py: 6, color: 'text.secondary' }}>
+                  Cargando ranking...
+                </Typography>
+              )}
+
+              {rankingError && (
+                <Typography variant="body1" sx={{ textAlign: 'center', py: 6, color: 'error.main' }}>
+                  {rankingError}
+                </Typography>
+              )}
+
+              {!loadingRanking && !rankingError && (
+                <List sx={{ bgcolor: 'background.paper', borderRadius: 3, elevation: 1 }}>
+                  {fullRanking.length === 0 ? (
+                    <Typography variant="body2" sx={{ textAlign: 'center', p: 4, color: 'text.secondary' }}>
+                      No hay datos de ranking disponibles.
+                    </Typography>
+                  ) : (
+                    fullRanking.map((player, index) => (
+                      <ListItem
+                        key={`${player.nombre_usuario}-${index}`}
                         sx={{
-                          color: index === 0 ? '#FFD700' : index === 1 ? '#C0C0C0' : '#CD7F32',
-                          fontSize: 32,
+                          px: 3,
+                          py: 2,
+                          borderBottom: index < fullRanking.length - 1 ? '1px solid' : 'none',
+                          borderColor: 'divider',
+                          bgcolor: player.nombre_usuario === user.nombre_usuario ? 'primary.50' : 'transparent',
                         }}
-                      />
-                    ) : (
-                      <Typography variant="h6" color="text.secondary" fontWeight="700">
-                        #{index + 1}
-                      </Typography>
-                    )}
-                  </Box>
-                  <ListItemAvatar>
-                    <Avatar sx={{ bgcolor: 'primary.main', fontWeight: 700 }}>
-                      {player.avatar}
-                    </Avatar>
-                  </ListItemAvatar>
-                  <ListItemText
-                    primary={
-                      <Typography variant="subtitle1" fontWeight="700">
-                        {player.username}
-                        {player.username === user.nombre_usuario && " (Tú)"}
-                      </Typography>
-                    }
-                    secondary={`${player.points} puntos`}
-                  />
-                </ListItem>
-              ))}
-            </List>
+                      >
+                        <Box
+                          sx={{
+                            minWidth: 40,
+                            mr: 2,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                          }}
+                        >
+                          {index < 3 ? (
+                            <EmojiEvents
+                              sx={{
+                                color: index === 0 ? '#FFD700' : index === 1 ? '#C0C0C0' : '#CD7F32',
+                                fontSize: 32,
+                              }}
+                            />
+                          ) : (
+                            <Typography variant="h6" color="text.secondary" fontWeight="700">
+                              #{index + 1}
+                            </Typography>
+                          )}
+                        </Box>
+                        <ListItemAvatar>
+                          <Avatar sx={{ bgcolor: 'primary.main', fontWeight: 700 }}>
+                            {player.nombre_usuario[0].toUpperCase()}
+                          </Avatar>
+                        </ListItemAvatar>
+                        <ListItemText
+                          primary={
+                            <Typography variant="subtitle1" fontWeight="700">
+                              {player.nombre_usuario}
+                              {player.nombre_usuario === user.nombre_usuario && ' (Tú)'}
+                            </Typography>
+                          }
+                          secondary={`${player.puntos} puntos`}
+                        />
+                      </ListItem>
+                    ))
+                  )}
+                </List>
+              )}
+            </Box>
           )}
         </Box>
       </Box>
