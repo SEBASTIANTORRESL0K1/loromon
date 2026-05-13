@@ -285,8 +285,8 @@ export function MapScreen({ onOpenCamera, user, location }: MapScreenProps) {
       <Fab
         color="primary"
         aria-label="abrir cámara AR"
-        disabled={!isNearFaculty}
-        onClick={onOpenCamera}
+        disabled={!isNearFaculty || !closestLugar}
+        onClick={() => closestLugar && onOpenCamera(closestLugar)}
         sx={{
           position: 'absolute',
           bottom: 70,

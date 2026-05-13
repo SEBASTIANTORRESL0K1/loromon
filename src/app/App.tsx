@@ -7,7 +7,7 @@ import { ProfileScreen } from './components/ProfileScreen';
 import { BottomNavigation, BottomNavigationAction, Paper } from '@mui/material';
 import { Map, Person } from '@mui/icons-material';
 import { Toaster, toast } from 'sonner';
-import { Usuario } from './services/api';
+import { Usuario, Lugar } from './services/api';
 import { useGeolocation } from './hooks/useGeolocation';
 
 const theme = createTheme({
@@ -49,6 +49,7 @@ export default function App() {
   const [currentScreen, setCurrentScreen] = useState<Screen>('auth');
   const [user, setUser] = useState<Usuario | null>(null);
   const [bottomNavValue, setBottomNavValue] = useState(0);
+  const [currentLugar, setCurrentLugar] = useState<Lugar | null>(null);
 
   const { latitude, longitude, error: locationError } = useGeolocation();
 
@@ -80,8 +81,22 @@ export default function App() {
     setBottomNavValue(0);
   };
 
-  const handleOpenCamera = () => setCurrentScreen('camera');
-  const handleCapture = () => setCurrentScreen('map');
+  const handleOpenCamera = (lugar: Lugar) => {
+    setCurrentLugar(lugar);
+    setCurrentScreen('camera');
+  };
+
+  const handleCapture = (puntosObtenidos: number) => {
+    if (user) {
+      const nuevoPuntaje = (user.puntos || 0) + puntosObtenidos;
+      const updatedUser = { ...user, puntos: nuevoPuntaje };
+      setUser(updatedUser);
+      localStorage.setItem('loromon_user', JSON.stringify(updatedUser));
+      toast.success(`¡Has ganado ${puntosObtenidos} puntos!`);
+    }
+    setCurrentScreen('map');
+  };
+
   const handleCloseCamera = () => setCurrentScreen('map');
 
   const handleBottomNavChange = (_: any, newValue: number) => {
@@ -121,8 +136,13 @@ export default function App() {
             />
           )}
 
-          {user && currentScreen === 'camera' && (
-            <ARCameraScreen onCapture={handleCapture} onClose={handleCloseCamera} />
+          {user && currentScreen === 'camera' && currentLugar && (
+            <ARCameraScreen 
+              onCapture={handleCapture} 
+              onClose={handleCloseCamera} 
+              user={user}
+              lugar={currentLugar}
+            />
           )}
 
           {user && currentScreen === 'profile' && (

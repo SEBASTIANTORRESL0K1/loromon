@@ -38,19 +38,15 @@ Aplicación WebAR de gamificación para el campus de la Universidad de Colima. C
 - [x] **Geolocalización**: Seguimiento GPS cada 120s y cálculo de distancia Haversine.
 - [x] **Mapa Interactivo**: Marcadores personalizados por facultad, geocercas de 25m y lógica de proximidad.
 - [x] **Interfaz Base**: Diseño responsivo unificado en MUI, ortografía corregida (sentence case).
+- [x] **Cámara AR**: Integración de cámara real (`getUserMedia`) y flujo de captura.
+- [x] **Registro de Capturas**: Conexión con `/api/capturar` y actualización de puntaje global.
 
 ### ⏳ Pendiente (Próximos Pasos en Orden)
-1.  **Módulo de Cámara AR (ARCameraScreen.tsx)**:
-    *   Activar acceso a la cámara real.
-    *   Configurar UI transparente sobre el video.
-2.  **Visualización 3D**:
+1.  **Visualización 3D**:
     *   Descargar la carpeta de Drive con los modelos .glb y colocarla en el directorio `public/` del proyecto.
-    *   Implementar la carga dinámica de modelos usando rutas relativas (ej: `${import.meta.env.BASE_URL}models/${nombre_modelo}`) para asegurar compatibilidad con el despliegue en GitHub Pages.
+    *   Implementar la carga dinámica de modelos usando `three`, `@react-three/fiber` y `@react-three/drei`.
     *   Vincular con la propiedad `ruta_modelo` devuelta por la API.
-3.  **Lógica de Registro de Capturas**:
-    *   Conectar acción de captura con `/api/capturar`.
-    *   Actualizar puntaje global tras éxito.
-4.  **Sincronización de Perfil**:
+2.  **Sincronización de Perfil**:
     *   Traer datos reales de "Inventario" y "Ranking" desde la API.
 
 ---

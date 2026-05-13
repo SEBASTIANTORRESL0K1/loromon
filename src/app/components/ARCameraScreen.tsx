@@ -8,20 +8,28 @@ import {
   Alert,
   CircularProgress,
 } from '@mui/material';
-import { CameraAlt, Close, FlipCameraIos } from '@mui/icons-material';
+import { CameraAlt, Close } from '@mui/icons-material';
+import { Usuario, Lugar, api } from '../services/api';
+import { toast } from 'sonner';
 
 interface ARCameraScreenProps {
-  onCapture: () => void;
+  onCapture: (puntos: number) => void;
   onClose: () => void;
+  user: Usuario;
+  lugar: Lugar;
 }
 
-export function ARCameraScreen({ onCapture, onClose }: ARCameraScreenProps) {
+export function ARCameraScreen({ onCapture, onClose, user, lugar }: ARCameraScreenProps) {
   const [showHint, setShowHint] = useState(true);
   const [captured, setCaptured] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [capturing, setCapturing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
+
+  // El personaje a mostrar será el personaje1 del lugar por defecto
+  const personaje = lugar.personaje1;
 
   // Activar la cámara al montar el componente
   useEffect(() => {
@@ -30,7 +38,7 @@ export function ARCameraScreen({ onCapture, onClose }: ARCameraScreenProps) {
         setLoading(true);
         const stream = await navigator.mediaDevices.getUserMedia({
           video: { 
-            facingMode: 'environment', // Usar cámara trasera por defecto
+            facingMode: 'environment',
             width: { ideal: 1280 },
             height: { ideal: 720 }
           },
@@ -44,14 +52,13 @@ export function ARCameraScreen({ onCapture, onClose }: ARCameraScreenProps) {
         setLoading(false);
       } catch (err) {
         console.error("Error al acceder a la cámara:", err);
-        setError("No se pudo acceder a la cámara. Por favor, asegúrate de dar los permisos necesarios.");
+        setError("No se pudo acceder a la cámara. Por favor, asegura los permisos.");
         setLoading(false);
       }
     }
 
     startCamera();
 
-    // Limpiar el stream al desmontar
     return () => {
       if (streamRef.current) {
         streamRef.current.getTracks().forEach(track => track.stop());
@@ -59,11 +66,26 @@ export function ARCameraScreen({ onCapture, onClose }: ARCameraScreenProps) {
     };
   }, []);
 
-  const handleCapture = () => {
-    setCaptured(true);
-    setTimeout(() => {
-      onCapture();
-    }, 1500);
+  const handleCapture = async () => {
+    if (capturing) return;
+    
+    try {
+      setCapturing(true);
+      // Llamada real a la API para registrar la captura
+      const response = await api.capturar(user.id_usuario, personaje.id_personaje);
+      
+      setCaptured(true);
+      
+      // Esperar la animación y notificar éxito
+      setTimeout(() => {
+        onCapture(response.puntosObtenidos);
+      }, 2000);
+      
+    } catch (err: any) {
+      console.error("Error en captura:", err);
+      toast.error(err.message || "Error al capturar LoroMon");
+      setCapturing(false);
+    }
   };
 
   return (
@@ -110,7 +132,7 @@ export function ARCameraScreen({ onCapture, onClose }: ARCameraScreenProps) {
           {loading && !error && (
             <>
               <CircularProgress size={60} sx={{ mb: 2 }} />
-              <Typography color="white">Iniciando cámara AR...</Typography>
+              <Typography color="white">Buscando LoroMons...</Typography>
             </>
           )}
           {error && (
@@ -124,17 +146,16 @@ export function ARCameraScreen({ onCapture, onClose }: ARCameraScreenProps) {
         </Box>
       )}
 
-      {/* Capa de Realidad Aumentada (3D placeholder) */}
+      {/* Capa de Realidad Aumentada */}
       {!loading && !error && (
         <Box
           sx={{
             position: 'absolute',
             inset: 0,
-            pointerEvents: 'none', // Permite que los clics pasen a través si es necesario
+            pointerEvents: 'none',
             zIndex: 10,
           }}
         >
-          {/* Aquí irá el Canvas de Three.js próximamente */}
           <Box
             sx={{
               position: 'absolute',
@@ -159,7 +180,7 @@ export function ARCameraScreen({ onCapture, onClose }: ARCameraScreenProps) {
               sx={{
                 fontSize: '140px',
                 filter: captured ? 'brightness(1.5) scale(0)' : 'drop-shadow(0 0 20px rgba(100, 200, 255, 0.6))',
-                transition: 'all 0.5s ease-in',
+                transition: 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
                 transform: captured ? 'scale(0)' : 'scale(1)',
               }}
             >
@@ -200,7 +221,7 @@ export function ARCameraScreen({ onCapture, onClose }: ARCameraScreenProps) {
             '& .MuiAlert-icon': { color: 'primary.light' },
           }}
         >
-          Apunta con la cámara para capturar al LoroMon
+          Apunta con la cámara para capturar a {personaje.nombre_personaje}
         </Alert>
       </Snackbar>
 
@@ -221,10 +242,10 @@ export function ARCameraScreen({ onCapture, onClose }: ARCameraScreenProps) {
         }}
       >
         <Typography variant="h6" color="white" fontWeight="800">
-          LoroMon Salvaje
+          {personaje.nombre_personaje} Salvaje
         </Typography>
         <Typography variant="body2" color="rgba(255, 255, 255, 0.7)">
-          Tipo: Ingeniero • Ubicación: Facultad de Telemática
+          Valor: {personaje.valor_puntos} pts • Ubicación: {lugar.nombre}
         </Typography>
       </Paper>
 
@@ -263,7 +284,7 @@ export function ARCameraScreen({ onCapture, onClose }: ARCameraScreenProps) {
           color="primary"
           aria-label="capturar"
           onClick={handleCapture}
-          disabled={captured || loading || !!error}
+          disabled={captured || loading || !!error || capturing}
           sx={{
             width: 90,
             height: 90,
@@ -271,7 +292,7 @@ export function ARCameraScreen({ onCapture, onClose }: ARCameraScreenProps) {
             '& .MuiSvgIcon-root': { fontSize: 45 }
           }}
         >
-          <CameraAlt />
+          {capturing ? <CircularProgress size={40} color="inherit" /> : <CameraAlt />}
         </Fab>
       </Box>
 
@@ -292,7 +313,7 @@ export function ARCameraScreen({ onCapture, onClose }: ARCameraScreenProps) {
             boxShadow: '0 8px 32px rgba(0,0,0,0.5)'
           }}
         >
-          ¡CAPTURADO! 🎉
+          ¡{personaje.nombre_personaje.toUpperCase()} CAPTURADO! 🎉
         </Alert>
       </Snackbar>
     </Box>
