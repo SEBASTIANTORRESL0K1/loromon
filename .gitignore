@@ -35,3 +35,6 @@ Thumbs.db
 # Temporales
 tmp/
 temp/
+
+
+backend/mysql/data/

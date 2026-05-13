@@ -13,23 +13,15 @@ import {
   Button,
   Chip,
   Paper,
+  CircularProgress,
 } from '@mui/material';
 import { Logout, EmojiEvents } from '@mui/icons-material';
-import { Usuario, RankingEntry, api } from '../services/api';
+import { Usuario, RankingEntry, api, Personaje } from '../services/api';
 
 interface ProfileScreenProps {
   onLogout: () => void;
   user: Usuario;
 }
-
-const capturedLoromons = [
-  { id: 'loromon-1', name: 'Ingeniero LoroMon', rarity: 3, emoji: '👷' },
-  { id: 'loromon-2', name: 'Doctor LoroMon', rarity: 4, emoji: '👨‍⚕️' },
-  { id: 'loromon-3', name: 'Abogado LoroMon', rarity: 2, emoji: '👨‍⚖️' },
-  { id: 'loromon-4', name: 'Economista LoroMon', rarity: 3, emoji: '💼' },
-  { id: 'loromon-5', name: 'Científico LoroMon', rarity: 5, emoji: '🔬' },
-  { id: 'loromon-6', name: 'Artista LoroMon', rarity: 2, emoji: '🎨' },
-];
 
 const rankingData: RankingEntry[] = [];
 
@@ -38,8 +30,39 @@ export function ProfileScreen({ onLogout, user }: ProfileScreenProps) {
   const [ranking, setRanking] = useState<RankingEntry[]>([]);
   const [loadingRanking, setLoadingRanking] = useState(false);
   const [rankingError, setRankingError] = useState<string | null>(null);
+  
+  const [characters, setCharacters] = useState<Personaje[]>([]);
+  const [loadingInventory, setLoadingInventory] = useState(false);
+  const [inventoryError, setInventoryError] = useState<string | null>(null);
 
-  const getRarityStars = (rarity: number) => '⭐'.repeat(rarity);
+  const getRarityStars = (rarity: number | boolean) => {
+    const stars = typeof rarity === 'number' ? rarity : (rarity ? 5 : 3);
+    return '⭐'.repeat(stars);
+  };
+
+  const fetchInventory = async () => {
+    setLoadingInventory(true);
+    setInventoryError(null);
+    try {
+      const lugares = await api.getLugares();
+      // Extraemos todos los personajes (personaje1 y personaje2) de cada lugar
+      const allCharacters: Personaje[] = [];
+      lugares.forEach(lugar => {
+        if (lugar.personaje1) allCharacters.push(lugar.personaje1);
+        if (lugar.personaje2) allCharacters.push(lugar.personaje2);
+      });
+      
+      // Eliminamos duplicados por ID de personaje
+      const uniqueCharacters = Array.from(new Map(allCharacters.map(char => [char.id_personaje, char])).values());
+      
+      setCharacters(uniqueCharacters);
+    } catch (error) {
+      console.error('Error fetching inventory:', error);
+      setInventoryError('No se pudo cargar el inventario.');
+    } finally {
+      setLoadingInventory(false);
+    }
+  };
 
   const fetchRanking = async () => {
     setLoadingRanking(true);
@@ -56,7 +79,9 @@ export function ProfileScreen({ onLogout, user }: ProfileScreenProps) {
   };
 
   useEffect(() => {
-    if (currentTab === 1) {
+    if (currentTab === 0) {
+      fetchInventory();
+    } else if (currentTab === 1) {
       fetchRanking();
     }
   }, [currentTab]);
@@ -180,43 +205,70 @@ export function ProfileScreen({ onLogout, user }: ProfileScreenProps) {
         <Box sx={{ mt: 3 }}>
           {/* Inventario Tab */}
           {currentTab === 0 && (
-            <Box
-              sx={{
-                display: 'grid',
-                gridTemplateColumns: {
-                  xs: 'repeat(2, 1fr)',
-                  sm: 'repeat(3, 1fr)',
-                },
-                gap: 2,
-              }}
-            >
-              {capturedLoromons.map((loromon) => (
-                <Paper
-                  key={loromon.id}
-                  elevation={1}
+            <Box>
+              {loadingInventory && (
+                <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
+                  <CircularProgress />
+                </Box>
+              )}
+
+              {inventoryError && (
+                <Typography variant="body1" sx={{ textAlign: 'center', py: 6, color: 'error.main' }}>
+                  {inventoryError}
+                </Typography>
+              )}
+
+              {!loadingInventory && !inventoryError && (
+                <Box
                   sx={{
-                    p: 2,
-                    textAlign: 'center',
-                    borderRadius: 3,
-                    transition: 'all 0.2s',
-                    border: '1px solid',
-                    borderColor: 'divider',
-                    '&:hover': {
-                      transform: 'translateY(-4px)',
-                      boxShadow: 4,
-                      cursor: 'pointer',
+                    display: 'grid',
+                    gridTemplateColumns: {
+                      xs: 'repeat(2, 1fr)',
+                      sm: 'repeat(3, 1fr)',
                     },
+                    gap: 2,
                   }}
                 >
-                  <Box sx={{ fontSize: '3rem', mb: 1 }}>{loromon.emoji}</Box>
-                  <Typography variant="subtitle2" fontWeight="700" noWrap>
-                    {loromon.name}
-                  </Typography>
-                  <Typography variant="caption" color="text.secondary">
-                    {getRarityStars(loromon.rarity)}
-                  </Typography>
-                </Paper>
-              ))}
+                  {characters.length === 0 ? (
+                    <Box sx={{ gridColumn: '1 / -1', textAlign: 'center', py: 4 }}>
+                      <Typography variant="body2" color="text.secondary">
+                        No has capturado ningún LoroMon todavía.
+                      </Typography>
+                    </Box>
+                  ) : (
+                    characters.map((character) => (
+                      <Paper
+                        key={character.id_personaje}
+                        elevation={1}
+                        sx={{
+                          p: 2,
+                          textAlign: 'center',
+                          borderRadius: 3,
+                          transition: 'all 0.2s',
+                          border: '1px solid',
+                          borderColor: 'divider',
+                          '&:hover': {
+                            transform: 'translateY(-4px)',
+                            boxShadow: 4,
+                            cursor: 'pointer',
+                          },
+                        }}
+                      >
+                        <Box sx={{ fontSize: '3rem', mb: 1 }}>👾</Box>
+                        <Typography variant="subtitle2" fontWeight="700" noWrap title={character.nombre_personaje}>
+                          {character.nombre_personaje}
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary">
+                          {getRarityStars(character.es_especial)}
+                        </Typography>
+                        <Typography variant="caption" display="block" color="primary" fontWeight="600">
+                          {character.valor_puntos} pts
+                        </Typography>
+                      </Paper>
+                    ))
+                  )}
+                </Box>
+              )}
             </Box>
           )}
 

@@ -7,7 +7,7 @@ import { ProfileScreen } from './components/ProfileScreen';
 import { BottomNavigation, BottomNavigationAction, Paper } from '@mui/material';
 import { Map, Person } from '@mui/icons-material';
 import { Toaster, toast } from 'sonner';
-import { Usuario } from './services/api';
+import { Usuario, api } from './services/api';
 import { useGeolocation } from './hooks/useGeolocation';
 
 const theme = createTheme({
@@ -52,6 +52,32 @@ export default function App() {
 
   const { latitude, longitude, error: locationError } = useGeolocation();
 
+  // Función para sincronizar los puntos del usuario desde el ranking
+  const refreshUserPoints = async (currentUser: Usuario) => {
+    try {
+      console.log('Sincronizando puntos para:', currentUser.nombre_usuario);
+      const ranking = await api.getRanking();
+      console.log('Ranking recibido:', ranking);
+      
+      const userInRanking = ranking.find(r => 
+        r.nombre_usuario.toLowerCase() === currentUser.nombre_usuario.toLowerCase()
+      );
+      
+      console.log('Usuario encontrado en ranking:', userInRanking);
+
+      if (userInRanking) {
+        console.log('Actualizando puntos a:', userInRanking.puntos);
+        const updatedUser = { ...currentUser, puntos: userInRanking.puntos };
+        setUser(updatedUser);
+        localStorage.setItem('loromon_user', JSON.stringify(updatedUser));
+      } else {
+        console.warn('El usuario no se encontró en el ranking actual.');
+      }
+    } catch (error) {
+      console.error('Error al sincronizar puntos:', error);
+    }
+  };
+
   useEffect(() => {
     if (locationError && user) {
       toast.error(locationError, { id: 'location-error' });
@@ -64,6 +90,8 @@ export default function App() {
       const parsedUser = JSON.parse(savedUser);
       setUser(parsedUser);
       setCurrentScreen('map');
+      // Sincronizar puntos al cargar la app
+      refreshUserPoints(parsedUser);
     }
   }, []);
 
@@ -71,6 +99,7 @@ export default function App() {
     setUser(userData);
     localStorage.setItem('loromon_user', JSON.stringify(userData));
     setCurrentScreen('map');
+    refreshUserPoints(userData);
   };
 
   const handleLogout = () => {
@@ -81,13 +110,24 @@ export default function App() {
   };
 
   const handleOpenCamera = () => setCurrentScreen('camera');
-  const handleCapture = () => setCurrentScreen('map');
+  
+  const handleCapture = () => {
+    setCurrentScreen('map');
+    if (user) refreshUserPoints(user);
+  };
+  
   const handleCloseCamera = () => setCurrentScreen('map');
 
   const handleBottomNavChange = (_: any, newValue: number) => {
     setBottomNavValue(newValue);
-    if (newValue === 0) setCurrentScreen('map');
-    if (newValue === 1) setCurrentScreen('profile');
+    if (newValue === 0) {
+      setCurrentScreen('map');
+      if (user) refreshUserPoints(user);
+    }
+    if (newValue === 1) {
+      setCurrentScreen('profile');
+      if (user) refreshUserPoints(user);
+    }
   };
 
   return (
