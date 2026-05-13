@@ -54,24 +54,24 @@ CREATE TABLE Captura (
 -- DATOS DE MUESTRA --
 
 -- Insertar Personajes de muestra
--- Asumimos rutas de modelos 3D de ejemplo
+-- Rutas actualizadas para coincidir con la estructura de src/modelos, manteniendo nombres originales
 INSERT INTO Personaje (id_personaje, nombre_personaje, ruta_modelo, valor_puntos, es_especial) VALUES
-(1, 'Ingeniero en Software', 'models/ingeniero.glb', 100, FALSE),
-(2, 'Telematico', 'models/telematico.glb', 100, FALSE),
-(3, 'Psicologo', 'models/psicologo.glb', 100, FALSE),
-(4, 'Psicologa', 'models/psicologa.glb', 100, FALSE),
-(5, 'Medico', 'models/medico.glb', 100, FALSE),
-(6, 'Cirujana', 'models/cirujana.glb', 100, FALSE),
-(7, 'Enfermero', 'models/enfermero.glb', 100, FALSE),
-(8, 'Enfermera', 'models/enfermera.glb', 100, FALSE),
-(9, 'Trabajador Social', 'models/trabajador_social.glb', 100, FALSE),
-(10, 'Trabajadora Social', 'models/trabajadora_social.glb', 100, FALSE),
-(11, 'Rector', 'models/rector.glb', 1000, TRUE),
-(12, 'Loro', 'models/loro.glb', 500, TRUE),
-(13, 'Estudiante de Intercambio', 'models/intercambio.glb', 100, FALSE),
-(14, 'Lingüista', 'models/linguista.glb', 100, FALSE),
-(15, 'Contador', 'models/contador.glb', 100, FALSE),
-(16, 'Administradora', 'models/administradora.glb', 100, FALSE);
+(1, 'Ingeniero en Software', 'models/Telematica/AhriLol.glb', 100, FALSE),
+(2, 'Telematico', 'models/Telematica/AlumnoTelematica.glb', 100, FALSE),
+(3, 'Psicologo', 'models/Psicologia/Freud.glb', 100, FALSE),
+(4, 'Psicologa', 'models/Psicologia/PsicologaEsteSi.glb', 100, FALSE),
+(5, 'Medico', 'models/Medicina/doctor-lowpoly.glb', 100, FALSE),
+(6, 'Cirujana', 'models/Medicina/doctor1.glb', 100, FALSE),
+(7, 'Enfermero', 'models/Enfermeria/jeringa_frasco.glb', 100, FALSE),
+(8, 'Enfermera', 'models/Enfermeria/Enfermera_ChambaNereyda.glb', 100, FALSE),
+(9, 'Trabajador Social', 'models/Trabajo-Social/trabajadora.glb', 100, FALSE),
+(10, 'Trabajadora Social', 'models/Trabajo-Social/trabajadora.glb', 100, FALSE),
+(11, 'Rector', 'models/Psicologia/SimboloPsicologia.glb', 1000, TRUE),
+(12, 'Loro', 'models/pokeball-lowpoly.glb', 500, TRUE),
+(13, 'Estudiante de Intercambio', 'models/CEI/Maestra1Keiry.glb', 100, FALSE),
+(14, 'Lingüista', 'models/CEI/Maestra2Keiry.glb', 100, FALSE),
+(15, 'Contador', 'models/Servicios/chef.glb', 100, FALSE),
+(16, 'Administradora', 'models/Servicios/conserje-fast-medium.glb', 100, FALSE);
 
 
 -- Insertar Lugares con sus coordenadas (centroide calculado) y personajes asignados
