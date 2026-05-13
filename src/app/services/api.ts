@@ -30,6 +30,17 @@ export interface RankingEntry {
   puntos: number;
 }
 
+export interface RegisterData {
+  nombre_usuario: string;
+  correo: string;
+  contrasena: string;
+}
+
+export interface LoginData {
+  correo: string;
+  contrasena: string;
+}
+
 const API_URL = (import.meta as any).env.VITE_API_URL;
 
 // Helper para obtener los encabezados con el token de seguridad que nos da el backend
