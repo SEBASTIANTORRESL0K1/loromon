@@ -120,7 +120,7 @@ export const api = {
   },
 
   getRanking: async (): Promise<RankingEntry[]> => {
-    const response = await fetch(`${API_URL}/usuarios/ranking`, {
+    const response = await fetch(`${API_URL}/ranking`, {
       headers: getHeaders(),
     });
     if (!response.ok) throw new Error('Error al obtener el ranking');

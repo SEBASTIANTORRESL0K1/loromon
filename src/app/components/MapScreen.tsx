@@ -81,7 +81,7 @@ const UserIcon = L.divIcon({
 });
 
 interface MapScreenProps {
-  onOpenCamera: () => void;
+  onOpenCamera: (lugar: Lugar) => void;
   user: Usuario;
   location: { latitude: number | null; longitude: number | null };
 }
