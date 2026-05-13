@@ -1,4 +1,5 @@
 import express from 'express';
+import cors from 'cors';
 import { PORT } from './config.js';
 import { pool } from './database/db.js';
 
@@ -9,6 +10,7 @@ import capturaRoutes from './routes/captura.routes.js';
 const app = express();
 
 // Middlewares
+app.use(cors());
 app.use(express.json()); // para entender los JSON que lleguen en el body
 
 // Routes
