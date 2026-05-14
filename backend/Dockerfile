@@ -16,5 +16,5 @@ COPY . .
 # Exponer el puerto en el que la aplicación se ejecutará
 EXPOSE 3000
 
-# Comando para iniciar la aplicación
-CMD [ "node", "src/index.js" ]
+# Comando para iniciar la aplicación (ahora sincroniza la BD automáticamente al arrancar)
+CMD [ "npm", "start" ]
