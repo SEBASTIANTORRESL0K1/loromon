@@ -87,8 +87,8 @@ INSERT INTO Lugares (nombre, latitud, longitud, id_personaje_1, id_personaje_2) 
 
 -- Insertar Usuarios de muestra
 INSERT INTO Usuario (nombre_usuario, correo, contrasena, puntos) VALUES
-('player1', 'player1@ucol.mx', '$2b$10$f9.VzV.' || 'some_dummy_hash_part2', 1250),
-('player2', 'player2@ucol.mx', '$2b$10$f9.VzV.' || 'some_dummy_hash_part2', 980);
+('player1', 'player1@ucol.mx', '$2b$10$f9.VzV.some_dummy_hash_part2', 1250),
+('player2', 'player2@ucol.mx', '$2b$10$f9.VzV.some_dummy_hash_part2', 980);
 
 -- NOTA: Las contraseñas son solo un ejemplo y deben ser hasheadas correctamente en la aplicación real.
 -- He añadido la columna 'puntos_obtenidos' a la tabla Captura para registrar el valor aleatorio exacto.
