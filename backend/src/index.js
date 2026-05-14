@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import { PORT } from './config.js';
 import { pool } from './database/db.js';
+import { syncDatabase } from './database/sync.js';
 
 import usuarioRoutes from './routes/usuario.routes.js';
 import lugaresRoutes from './routes/lugares.routes.js';
@@ -50,6 +51,7 @@ app.listen(PORT, async () => {
             const [result] = await pool.query('SELECT 1 + 1 AS result');
             if (result) {
                 console.log('Conexión con la base de datos establecida correctamente');
+                await syncDatabase();
                 break;
             }
         } catch (error) {
