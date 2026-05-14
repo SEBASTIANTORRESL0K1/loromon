@@ -7,11 +7,20 @@ import usuarioRoutes from './routes/usuario.routes.js';
 import lugaresRoutes from './routes/lugares.routes.js';
 import capturaRoutes from './routes/captura.routes.js';
 
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const app = express();
 
 // Middlewares
 app.use(cors());
 app.use(express.json()); // para entender los JSON que lleguen en el body
+
+// Servir modelos 3D como archivos estáticos
+app.use('/models', express.static(path.join(__dirname, 'modelos')));
 
 // Routes
 app.use('/api', usuarioRoutes);
