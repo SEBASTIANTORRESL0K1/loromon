@@ -17,6 +17,19 @@ export const capturarPersonaje = async (req, res) => {
         connection = await pool.getConnection();
         await connection.beginTransaction();
 
+        // 1.5 Verificar si el usuario existe antes de intentar insertar la captura
+        // Esto evita errores de Foreign Key (Error 500) si el usuario es viejo
+        const [usuarios] = await connection.query(
+            "SELECT id_usuario FROM Usuario WHERE id_usuario = ?",
+            [id_usuario]
+        );
+
+        if (usuarios.length === 0) {
+            await connection.rollback();
+            connection.release();
+            return res.status(401).json({ message: "Sesión inválida. Por favor, cierra sesión y vuelve a entrar." });
+        }
+
         // 2. Verificar si el usuario ya capturó este personaje
         const [capturas] = await connection.query(
             "SELECT id_captura FROM Captura WHERE id_usuario = ? AND id_personaje = ?",
