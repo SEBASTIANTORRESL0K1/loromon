@@ -358,8 +358,15 @@ export function MapScreen({ onOpenCamera, user, location }: MapScreenProps) {
           transform: 'translateX(-50%)',
           zIndex: 1200,
           width: 'max-content',
-          maxWidth: '90%'
+          maxWidth: '90%',
+          // Animación para que el mensaje flote suavemente
+          '@keyframes slideUpFade': {
+            '0%': { opacity: 0, transform: 'translateX(-50%) translateY(20px)' },
+            '100%': { opacity: 1, transform: 'translateX(-50%) translateY(0)' },
+          },
+          animation: 'slideUpFade 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards',
         }}
+        key={closestLugar ? `near-${closestLugar.id_lugar}` : 'searching'}
       >
         {!isNearFaculty ? (
           <Paper
