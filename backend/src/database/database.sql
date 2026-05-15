@@ -59,7 +59,7 @@ INSERT INTO Personaje (id_personaje, nombre_personaje, ruta_modelo, valor_puntos
 (1, 'Ingeniero en Software', 'models/Telematica/AhriLol.glb', 100, FALSE),
 (2, 'Telematico', 'models/Telematica/AlumnoTelematica.glb', 100, FALSE),
 (3, 'Psicologo', 'models/Psicologia/Freud.glb', 100, FALSE),
-(4, 'Psicologa', 'models/Psicologia/PsicologaEsteSi.glb', 100, FALSE),
+(4, 'Simbolo de Psicologia', 'models/Psicologia/SimboloPsicologia.glb', 100, FALSE),
 (5, 'Medico', 'models/Medicina/doctor-lowpoly.glb', 100, FALSE),
 (6, 'Cirujana', 'models/Medicina/doctor1.glb', 100, FALSE),
 (7, 'Enfermero', 'models/Enfermeria/jeringa_frasco.glb', 100, FALSE),
