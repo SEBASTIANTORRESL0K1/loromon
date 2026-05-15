@@ -1,11 +1,9 @@
-import { useState, useEffect, useRef, Suspense } from 'react';
+import { useState, useEffect, useRef, Suspense, useMemo } from 'react';
 import {
   Box,
   Fab,
   Paper,
   Typography,
-  Snackbar,
-  Alert,
   CircularProgress,
 } from '@mui/material';
 import { CameraAlt, Close } from '@mui/icons-material';
@@ -22,10 +20,35 @@ interface ARCameraScreenProps {
   lugar: Lugar;
 }
 
-// Componente para cargar y mostrar el modelo 3D
+// Componente para cargar y mostrar el modelo 3D con normalización automática
 function Model({ url, capturing }: { url: string; capturing: boolean }) {
   const { scene } = useGLTF(url);
   const modelRef = useRef<THREE.Group>(null);
+
+  // Normalizar el modelo al cargar (Escalado y centrado automático)
+  const normalizedScene = useMemo(() => {
+    const clone = scene.clone();
+    const box = new THREE.Box3().setFromObject(clone);
+    const size = new THREE.Vector3();
+    box.getSize(size);
+    
+    // Calcular escala para que el modelo tenga un tamaño consistente (aprox 1.8 unidades de altura)
+    const maxDim = Math.max(size.x, size.y, size.z);
+    const targetScale = 1.8 / maxDim;
+    clone.scale.setScalar(targetScale);
+    
+    // Centrar el modelo
+    const center = new THREE.Vector3();
+    box.getCenter(center);
+    clone.position.x = -center.x * targetScale;
+    clone.position.y = -center.y * targetScale;
+    clone.position.z = -center.z * targetScale;
+    
+    // Ajustar posición base para que los pies queden cerca del suelo (-0.9 aprox)
+    clone.position.y -= 0.1; 
+
+    return clone;
+  }, [scene]);
 
   // Animación de rotación y flotación
   useFrame((state) => {
@@ -35,21 +58,19 @@ function Model({ url, capturing }: { url: string; capturing: boolean }) {
         modelRef.current.scale.lerp(new THREE.Vector3(0, 0, 0), 0.1);
         modelRef.current.rotation.y += 0.2;
       } else {
-        // Asegurar que regrese a su escala original (0.7) si no se está capturando
-        modelRef.current.scale.lerp(new THREE.Vector3(0.7, 0.7, 0.7), 0.1);
+        // Regresar a escala normal si no está capturando
+        modelRef.current.scale.lerp(new THREE.Vector3(1, 1, 1), 0.1);
         modelRef.current.rotation.y += 0.01;
-        modelRef.current.position.y = (Math.sin(state.clock.elapsedTime) * 0.1) - 1.2;
+        // Efecto sutil de flotación
+        modelRef.current.position.y = (Math.sin(state.clock.elapsedTime) * 0.05);
       }
     }
   });
 
   return (
-    <primitive 
-      ref={modelRef} 
-      object={scene} 
-      scale={0.7} 
-      position={[0, -1.2, 0]} 
-    />
+    <group ref={modelRef} position={[0, -0.5, 0]}>
+      <primitive object={normalizedScene} />
+    </group>
   );
 }
 
@@ -147,7 +168,6 @@ export function ARCameraScreen({ onCapture, onClose, user, lugar }: ARCameraScre
     }
   };
 
-  // La URL del modelo debe ser absoluta apuntando al backend de Railway
   const getModelUrl = (path: string) => {
     const baseUrl = (import.meta as any).env.VITE_API_URL.replace('/api', '');
     return `${baseUrl}/${path}`;
@@ -155,7 +175,6 @@ export function ARCameraScreen({ onCapture, onClose, user, lugar }: ARCameraScre
 
   return (
     <Box sx={{ height: '100vh', position: 'relative', bgcolor: 'black', overflow: 'hidden' }}>
-      {/* Feed de la Cámara */}
       <video
         ref={videoRef}
         autoPlay
@@ -164,11 +183,10 @@ export function ARCameraScreen({ onCapture, onClose, user, lugar }: ARCameraScre
         style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', top: 0, left: 0 }}
       />
 
-      {/* Visor 3D (Three.js) */}
       {!loading && !error && personajeActual && (
         <Box sx={{ position: 'absolute', inset: 0, zIndex: 10 }}>
           <Canvas shadows>
-            <PerspectiveCamera makeDefault position={[0, 0, 3]} />
+            <PerspectiveCamera makeDefault position={[0, 0, 3.5]} />
             <ambientLight intensity={0.7} />
             <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} intensity={1} castShadow />
             <pointLight position={[-10, -10, -10]} intensity={0.5} />
@@ -176,7 +194,7 @@ export function ARCameraScreen({ onCapture, onClose, user, lugar }: ARCameraScre
             <Suspense fallback={null}>
               <Model url={getModelUrl(personajeActual.ruta_modelo)} capturing={capturing} />
               <Environment preset="city" />
-              <ContactShadows position={[0, -0.8, 0]} opacity={0.4} scale={5} blur={2} far={1} />
+              <ContactShadows position={[0, -1.2, 0]} opacity={0.4} scale={5} blur={2} far={1} />
             </Suspense>
 
             <OrbitControls enableZoom={false} enablePan={false} />
@@ -184,7 +202,6 @@ export function ARCameraScreen({ onCapture, onClose, user, lugar }: ARCameraScre
         </Box>
       )}
 
-      {/* Mensajes de carga */}
       {loading && (
         <Box sx={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', bgcolor: 'rgba(0,0,0,0.8)', zIndex: 2000 }}>
           <CircularProgress size={60} sx={{ mb: 2 }} />
@@ -192,7 +209,6 @@ export function ARCameraScreen({ onCapture, onClose, user, lugar }: ARCameraScre
         </Box>
       )}
 
-      {/* Información del Lugar y Personaje */}
       <Paper
         elevation={4}
         sx={{
@@ -224,7 +240,6 @@ export function ARCameraScreen({ onCapture, onClose, user, lugar }: ARCameraScre
         <Close />
       </Fab>
 
-      {/* Botón de Captura */}
       <Box sx={{ position: 'absolute', bottom: 40, left: 0, right: 0, display: 'flex', justifyContent: 'center', zIndex: 100 }}>
         <Fab
           color="primary"
