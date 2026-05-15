@@ -103,7 +103,7 @@ export function ProfileScreen({ onLogout, user }: ProfileScreenProps) {
           p: { xs: 3, sm: 4 },
           pt: { xs: 'calc(16px + env(safe-area-inset-top))', sm: 5 },
           borderRadius: 0,
-          background: 'linear-gradient(135deg, #6366f1 0%, #a855f7 100%)',
+          bgcolor: '#6366f1',
           color: 'white',
         }}
       >

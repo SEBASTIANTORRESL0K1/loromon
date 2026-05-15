@@ -63,14 +63,16 @@ export default function App() {
       const metaThemeColor = document.querySelector('meta[name="theme-color"]');
       if (metaThemeColor) metaThemeColor.setAttribute('content', '#6366f1');
     } else if (currentScreen === 'profile') {
-      // Top overscroll morado (status bar), Bottom overscroll gris (para que no se vea morado abajo)
-      document.body.style.background = 'linear-gradient(to bottom, #6366f1 50%, #f8fafc 50%)';
-      document.body.style.backgroundAttachment = 'fixed';
+      // Técnica definitiva para iOS: html = arriba, body = abajo
+      document.documentElement.style.backgroundColor = '#6366f1';
+      document.body.style.backgroundColor = '#f8fafc';
+      document.body.style.background = '#f8fafc';
       
       const metaThemeColor = document.querySelector('meta[name="theme-color"]');
       if (metaThemeColor) metaThemeColor.setAttribute('content', '#6366f1');
     } else {
-      // Mapa y otros: Todo gris claro
+      document.documentElement.style.backgroundColor = '#f8fafc';
+      document.body.style.backgroundColor = '#f8fafc';
       document.body.style.background = '#f8fafc';
       
       const metaThemeColor = document.querySelector('meta[name="theme-color"]');
@@ -171,7 +173,7 @@ export default function App() {
         height: '100dvh', 
         display: 'flex', 
         flexDirection: 'column',
-        bgcolor: (currentScreen === 'auth' || currentScreen === 'profile') ? '#6366f1' : 'background.default',
+        bgcolor: (currentScreen === 'auth') ? '#6366f1' : 'background.default',
         overflow: 'hidden'
       }}>
         
