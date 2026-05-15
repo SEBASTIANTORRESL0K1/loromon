@@ -34,6 +34,7 @@ Aplicación WebAR de gamificación para el campus de la Universidad de Colima. C
 
 ### ✅ Realizado (Completado y Probado)
 - [x] **Autenticación**: Registro y login real con validaciones de seguridad.
+- [x] **Seguridad de Login**: Sanitización de errores para no revelar existencia de correos (ahora muestra "Correo o contraseña incorrectos" genérico).
 - [x] **Gestión de Sesión**: Persistencia en LocalStorage y uso de JWT en peticiones.
 - [x] **Geolocalización**: Seguimiento GPS cada 120s y cálculo de distancia Haversine.
 - [x] **Mapa Interactivo**: Marcadores personalizados por facultad, geocercas de 25m y lógica de proximidad.

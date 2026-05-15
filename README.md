@@ -1,6 +1,6 @@
-# 🦜 LoroMon - Juego WebAR
+# 🦜 Loromon - Juego WebAR
 
-LoroMon es una aplicación web de realidad aumentada (AR) donde los usuarios pueden explorar su facultad, localizar personajes "LoroMon" en un mapa interactivo y capturarlos usando la cámara de su dispositivo.
+LoroMon es una aplicación web de realidad aumentada (AR) donde los usuarios pueden explorar su facultad, localizar personajes "Loromon" en un mapa interactivo y capturarlos usando la cámara de su dispositivo.
 
 ## 🚀 Características
 - **Autenticación segura**: registro e inicio de sesión integrados con el servidor de LoroMon.
@@ -51,7 +51,11 @@ Asegúrate de tener instalado:
 - `.env`: configuración de variables de entorno (no incluido en el repositorio).
 
 ## 🛡️ Seguridad
-El proyecto incluye validaciones de entrada, protección contra inyección de scripts (XSS) básico y manejo seguro de sesiones mediante `localStorage`.
+El proyecto implementa prácticas esenciales de seguridad:
+- **Validación de entradas**: sanitización de datos en el cliente.
+- **Protección de identidad**: sanitización de errores de login para prevenir enumeración de usuarios (no revela si un correo existe o no).
+- **Manejo de sesiones**: persistencia segura en `localStorage` con integración de tokens JWT.
+- **Seguridad en API**: uso de encabezados de autorización estandarizados.
 
 ---
 *Desarrollado para el proyecto LoroMon - 2026*

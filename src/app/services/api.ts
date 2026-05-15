@@ -90,7 +90,16 @@ export const api = {
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.message || 'Credenciales incorrectas');
+      let message = errorData.message || 'Credenciales incorrectas';
+      
+      // Sanitización por seguridad: no revelar si el correo existe o no
+      if (message.toLowerCase().includes('correo no encontrado') || 
+          message.toLowerCase().includes('inválidas') ||
+          message.toLowerCase().includes('incorrecta')) {
+        message = 'Correo o contraseña incorrectos';
+      }
+      
+      throw new Error(message);
     }
 
     return response.json();

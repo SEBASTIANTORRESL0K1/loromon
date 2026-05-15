@@ -155,7 +155,7 @@ export function AuthScreen({ onLogin }: AuthScreenProps) {
                 gap: 1
               }}
             >
-              <span>🦜</span> LoroMon
+              <span>🦜</span> Loromon
             </Typography>
             <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 500 }}>
               {isLogin ? '¡Captúralos a todos en tu facultad!' : 'Únete a la aventura de LoroMon'}

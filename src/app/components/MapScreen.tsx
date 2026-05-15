@@ -270,7 +270,7 @@ export function MapScreen({ onOpenCamera, user, location }: MapScreenProps) {
               {user.nombre_usuario}
             </Typography>
             <Typography variant="caption" color="text.secondary">
-              Explorando Colima
+              Explorando el Campus Central
             </Typography>
           </Box>
         </Box>
