@@ -21,6 +21,7 @@ import {
 } from '@mui/icons-material';
 import { api } from '../services/api';
 import { toast } from 'sonner';
+import logoLoromon from '../../assets/Logo-loromon.png';
 
 interface AuthScreenProps {
   onLogin: (user: any) => void;
@@ -166,23 +167,37 @@ export function AuthScreen({ onLogin }: AuthScreenProps) {
           }}
         >
           <Box sx={{ mb: 4 }}>
-            <Typography 
-              variant="h3" 
-              component="h1" 
+            <Box 
               sx={{ 
-                fontWeight: 800, 
-                color: 'primary.main',
-                mb: 1,
-                letterSpacing: -1,
-                fontSize: { xs: '2.5rem', sm: '3rem' },
                 display: 'flex',
+                flexDirection: 'column',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: 1
+                mb: 1
               }}
             >
-              <span>🦜</span> Loromon
-            </Typography>
+              <Box 
+                component="img" 
+                src={logoLoromon} 
+                alt="LoroMon Logo"
+                sx={{ 
+                  height: { xs: 80, sm: 100 },
+                  mb: 1
+                }}
+              />
+              <Typography 
+                variant="h3" 
+                component="h1" 
+                sx={{ 
+                  fontWeight: 800, 
+                  color: 'primary.main',
+                  letterSpacing: -1,
+                  fontSize: { xs: '2.5rem', sm: '3rem' }
+                }}
+              >
+                Loromon
+              </Typography>
+            </Box>
             <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 500 }}>
               {isLogin ? '¡Captúralos a todos en tu facultad!' : 'Únete a la aventura de LoroMon'}
             </Typography>
@@ -269,6 +284,7 @@ export function AuthScreen({ onLogin }: AuthScreenProps) {
                           onClick={() => setShowPassword(!showPassword)}
                           edge="end"
                           size="small"
+                          aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
                         >
                           {showPassword ? <VisibilityOff /> : <Visibility />}
                         </IconButton>
@@ -292,7 +308,9 @@ export function AuthScreen({ onLogin }: AuthScreenProps) {
                   py: 1.8, 
                   borderRadius: 3,
                   fontSize: '1rem',
-                  boxShadow: '0 4px 14px 0 rgba(99, 102, 241, 0.39)'
+                  bgcolor: '#4f46e5', // Indigo 600 para mejor contraste con texto blanco
+                  '&:hover': { bgcolor: '#4338ca' }, // Indigo 700 al pasar el mouse
+                  boxShadow: '0 4px 14px 0 rgba(79, 70, 229, 0.39)'
                 }}
               >
                 {loading ? 'Cargando...' : (isLogin ? 'Iniciar sesión' : 'Registrarme')}
@@ -308,13 +326,13 @@ export function AuthScreen({ onLogin }: AuthScreenProps) {
                   }}
                   sx={{ 
                     textTransform: 'none', 
-                    fontWeight: 600,
-                    color: 'primary.main',
+                    fontWeight: 700,
+                    color: '#4338ca', // Indigo 700 para contraste AA sobre fondo blanco
                     textDecoration: 'underline',
                     '&:hover': { 
                       textDecoration: 'underline',
                       bgcolor: 'transparent',
-                      color: 'primary.dark'
+                      color: '#3730a3' // Indigo 800 en hover
                     }
                   }}
                 >
