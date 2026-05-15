@@ -77,7 +77,7 @@ INSERT INTO Personaje (id_personaje, nombre_personaje, ruta_modelo, valor_puntos
 -- Insertar Lugares con sus coordenadas (centroide calculado) y personajes asignados
 INSERT INTO Lugares (nombre, latitud, longitud, id_personaje_1, id_personaje_2) VALUES
 ('Facultad de Telematica', 19.258182928502965, -103.72888878012887, 1, 2),
-('Facultad de Psicologia', 19.251949288098608, -103.75352099092213, 3, 4),
+('Facultad de Psicologia', 19.251753, -103.753484, 3, 4),
 ('Facultad de Medicina', 19.247356, -103.698054, 5, 6),
 ('Facultad de Enfermeria', 19.247707, -103.698578, 7, 8),
 ('Facultad de Trabajo Social', 19.248092, -103.698384, 9, 10),
