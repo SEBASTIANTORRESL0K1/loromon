@@ -50,11 +50,20 @@ export function AuthScreen({ onLogin }: AuthScreenProps) {
     clearErrors();
     let isValid = true;
 
+    // Sanitización básica para prevenir XSS en campos de texto
+    const sanitize = (text: string) => text.replace(/[<>]/g, '');
+
+    const sanitizedEmail = sanitize(email.trim());
+    const sanitizedUsername = sanitize(username.trim());
+
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!email.trim()) {
+    if (!sanitizedEmail) {
       setEmailError('El correo es obligatorio.');
       isValid = false;
-    } else if (!emailRegex.test(email)) {
+    } else if (sanitizedEmail.length > 100) {
+      setEmailError('Máximo 100 caracteres.');
+      isValid = false;
+    } else if (!emailRegex.test(sanitizedEmail)) {
       setEmailError('Ingresa un correo válido.');
       isValid = false;
     }
@@ -62,20 +71,34 @@ export function AuthScreen({ onLogin }: AuthScreenProps) {
     if (!password) {
       setPasswordError('La contraseña es obligatoria.');
       isValid = false;
-    } else if (password.length < 6) {
-      setPasswordError('Mínimo 6 caracteres.');
+    } else if (password.length < 8) {
+      setPasswordError('Mínimo 8 caracteres.');
+      isValid = false;
+    } else if (password.length > 64) {
+      setPasswordError('Máximo 64 caracteres.');
       isValid = false;
     }
 
     if (!isLogin) {
-      if (!username.trim()) {
+      const usernameRegex = /^[a-zA-Z0-9_]+$/;
+      if (!sanitizedUsername) {
         setUsernameError('El usuario es obligatorio.');
         isValid = false;
-      } else if (username.trim().length < 3) {
+      } else if (sanitizedUsername.length < 3) {
         setUsernameError('Mínimo 3 caracteres.');
+        isValid = false;
+      } else if (sanitizedUsername.length > 30) {
+        setUsernameError('Máximo 30 caracteres.');
+        isValid = false;
+      } else if (!usernameRegex.test(sanitizedUsername)) {
+        setUsernameError('Solo letras, números y guiones bajos (_).');
         isValid = false;
       }
     }
+
+    // Actualizamos los estados con los valores limpios
+    setEmail(sanitizedEmail);
+    if (!isLogin) setUsername(sanitizedUsername);
 
     return isValid;
   };
@@ -177,7 +200,7 @@ export function AuthScreen({ onLogin }: AuthScreenProps) {
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   error={!!usernameError}
-                  helperText={usernameError}
+                  helperText={usernameError || "Usa entre 3 y 30 letras, números o guiones bajos."}
                   disabled={loading}
                   autoComplete="username"
                   slotProps={{
@@ -187,6 +210,9 @@ export function AuthScreen({ onLogin }: AuthScreenProps) {
                           <PersonOutline color={usernameError ? 'error' : 'action'} />
                         </InputAdornment>
                       ),
+                    },
+                    htmlInput: {
+                      maxLength: 30
                     }
                   }}
                 />
@@ -210,6 +236,9 @@ export function AuthScreen({ onLogin }: AuthScreenProps) {
                         <EmailOutlined color={emailError ? 'error' : 'action'} />
                       </InputAdornment>
                     ),
+                  },
+                  htmlInput: {
+                    maxLength: 100
                   }
                 }}
               />
@@ -221,7 +250,7 @@ export function AuthScreen({ onLogin }: AuthScreenProps) {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 error={!!passwordError}
-                helperText={passwordError}
+                helperText={passwordError || (!isLogin ? "Debe tener entre 8 y 64 caracteres." : "")}
                 disabled={loading}
                 autoComplete={isLogin ? "current-password" : "new-password"}
                 slotProps={{
@@ -242,15 +271,12 @@ export function AuthScreen({ onLogin }: AuthScreenProps) {
                         </IconButton>
                       </InputAdornment>
                     ),
+                  },
+                  htmlInput: {
+                    maxLength: 64
                   }
                 }}
               />
-
-              {!isLogin && (
-                <Typography variant="caption" color="text.secondary" align="left" sx={{ px: 1 }}>
-                  Mínimo 6 caracteres. No uses símbolos como &lt; &gt; " &#123; &#125; ;
-                </Typography>
-              )}
 
               <Button
                 type="submit"
