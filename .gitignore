@@ -36,5 +36,6 @@ Thumbs.db
 tmp/
 temp/
 
-
+backend/node_modules/
 backend/mysql/data/
+backend/mysql-data/
