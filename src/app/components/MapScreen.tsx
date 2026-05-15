@@ -159,6 +159,21 @@ export function MapScreen({ onOpenCamera, user, location }: MapScreenProps) {
 
   return (
     <Box sx={{ height: '100%', position: 'relative', overflow: 'hidden' }}>
+      {/* H1 Oculto para accesibilidad */}
+      <Typography component="h1" sx={{
+        position: 'absolute',
+        width: '1px',
+        height: '1px',
+        padding: 0,
+        margin: '-1px',
+        overflow: 'hidden',
+        clip: 'rect(0, 0, 0, 0)',
+        whiteSpace: 'nowrap',
+        border: 0,
+      }}>
+        Mapa de LoroMon - Exploración del Campus
+      </Typography>
+
       {/* Mapa de Leaflet */}
       <MapContainer
         center={mapCenter}
@@ -175,7 +190,12 @@ export function MapScreen({ onOpenCamera, user, location }: MapScreenProps) {
 
         {/* Marcador del Usuario */}
         {location.latitude && location.longitude && (
-          <Marker position={[location.latitude, location.longitude]} icon={UserIcon}>
+          <Marker 
+            position={[location.latitude, location.longitude]} 
+            icon={UserIcon}
+            title="Tu ubicación"
+            alt="Marcador de tu ubicación actual"
+          >
             <Popup>¡Estás aquí!</Popup>
           </Marker>
         )}
@@ -211,7 +231,12 @@ export function MapScreen({ onOpenCamera, user, location }: MapScreenProps) {
 
           return (
             <Box key={lugar.id_lugar}>
-              <Marker position={position} icon={CustomIcon}>
+              <Marker 
+                position={position} 
+                icon={CustomIcon}
+                title={lugar.nombre}
+                alt={`Marcador de ${lugar.nombre}`}
+              >
                 <Popup>
                   <Typography variant="subtitle2" fontWeight="700" sx={{ color: style.color }}>
                     {lugar.nombre}
@@ -276,8 +301,14 @@ export function MapScreen({ onOpenCamera, user, location }: MapScreenProps) {
         </Box>
         <Chip
           label={`${user.puntos || 0} pts`}
-          color="primary"
-          sx={{ fontWeight: 'bold', fontSize: '1rem', borderRadius: 2 }}
+          sx={{ 
+            fontWeight: 800, 
+            fontSize: '1rem', 
+            borderRadius: 2,
+            bgcolor: '#e0e7ff', // Indigo muy claro
+            color: '#3730a3',    // Indigo muy oscuro (Contraste alto)
+            border: '1px solid rgba(99, 102, 241, 0.3)'
+          }}
         />
       </Card>
 
@@ -352,10 +383,14 @@ export function MapScreen({ onOpenCamera, user, location }: MapScreenProps) {
               py: 1,
               borderRadius: 2,
               bgcolor: 'success.main',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 1
             }}
           >
+            <Place sx={{ color: 'white', fontSize: 20 }} />
             <Typography variant="body2" color="white" fontWeight="700" sx={{ fontSize: { xs: '0.8rem', sm: '0.9rem' } }}>
-              📍 Estás en {closestLugar.nombre}
+              Estás en {closestLugar.nombre}
             </Typography>
           </Paper>
         )}

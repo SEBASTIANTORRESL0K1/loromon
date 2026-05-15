@@ -135,4 +135,12 @@ export const api = {
     if (!response.ok) throw new Error('Error al obtener el ranking');
     return response.json();
   },
+
+  getInventario: async (id_usuario: number): Promise<Personaje[]> => {
+    const response = await fetch(`${API_URL}/usuario/${id_usuario}`, {
+      headers: getHeaders(),
+    });
+    if (!response.ok) throw new Error('Error al obtener el inventario');
+    return response.json();
+  },
 };

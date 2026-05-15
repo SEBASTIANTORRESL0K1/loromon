@@ -178,11 +178,14 @@ export default function App() {
       }}>
         
         {/* Área de Contenido Principal */}
-        <Box sx={{ 
-          flex: 1, 
-          position: 'relative', 
-          overflowY: (currentScreen === 'profile' || currentScreen === 'auth') ? 'auto' : 'hidden' 
-        }}>
+        <Box 
+          component="main"
+          sx={{ 
+            flex: 1, 
+            position: 'relative', 
+            overflowY: (currentScreen === 'profile' || currentScreen === 'auth') ? 'auto' : 'hidden' 
+          }}
+        >
           {!user && currentScreen === 'auth' && (
             <AuthScreen onLogin={handleLogin} />
           )}
@@ -212,11 +215,13 @@ export default function App() {
         {/* Menú de Navegación Inferior (Solo visible si hay usuario y no está en cámara) */}
         {user && currentScreen !== 'auth' && currentScreen !== 'camera' && (
           <Paper 
+            component="nav"
             elevation={10} 
             sx={{ 
               borderRadius: 0, 
               pb: 'env(safe-area-inset-bottom)',
               bgcolor: 'background.paper',
+              borderTop: '1px solid rgba(0,0,0,0.08)',
               '& .MuiBottomNavigation-root': {
                 bgcolor: 'background.paper'
               }

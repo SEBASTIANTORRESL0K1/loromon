@@ -44,18 +44,8 @@ export function ProfileScreen({ onLogout, user }: ProfileScreenProps) {
     setLoadingInventory(true);
     setInventoryError(null);
     try {
-      const lugares = await api.getLugares();
-      // Extraemos todos los personajes (personaje1 y personaje2) de cada lugar
-      const allCharacters: Personaje[] = [];
-      lugares.forEach(lugar => {
-        if (lugar.personaje1) allCharacters.push(lugar.personaje1);
-        if (lugar.personaje2) allCharacters.push(lugar.personaje2);
-      });
-      
-      // Eliminamos duplicados por ID de personaje
-      const uniqueCharacters = Array.from(new Map(allCharacters.map(char => [char.id_personaje, char])).values());
-      
-      setCharacters(uniqueCharacters);
+      const capturedCharacters = await api.getInventario(user.id_usuario);
+      setCharacters(capturedCharacters);
     } catch (error) {
       console.error('Error fetching inventory:', error);
       setInventoryError('No se pudo cargar el inventario.');
@@ -152,11 +142,11 @@ export function ProfileScreen({ onLogout, user }: ProfileScreenProps) {
                 Entrenador LoroMon
               </Typography>
               <Chip
-                icon={<EmojiEvents sx={{ color: 'white !important', fontSize: { xs: '1rem', sm: '1.1rem' } }} />}
+                icon={<EmojiEvents sx={{ color: '#3730a3 !important', fontSize: { xs: '1rem', sm: '1.1rem' } }} />}
                 label={`${user.puntos || 0} pts`}
                 sx={{
-                  bgcolor: 'rgba(255, 255, 255, 0.2)',
-                  color: 'white',
+                  bgcolor: '#e0e7ff',
+                  color: '#3730a3',
                   fontWeight: 800,
                   border: '1px solid rgba(255, 255, 255, 0.3)',
                   height: { xs: 26, sm: 28 },
