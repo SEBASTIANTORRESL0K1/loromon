@@ -174,7 +174,7 @@ export function ARCameraScreen({ onCapture, onClose, user, lugar }: ARCameraScre
   };
 
   return (
-    <Box sx={{ height: '100vh', position: 'relative', bgcolor: 'black', overflow: 'hidden' }}>
+    <Box sx={{ height: '100%', position: 'relative', bgcolor: 'black', overflow: 'hidden' }}>
       <video
         ref={videoRef}
         autoPlay

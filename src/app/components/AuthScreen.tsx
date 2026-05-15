@@ -133,16 +133,19 @@ export function AuthScreen({ onLogin }: AuthScreenProps) {
   return (
     <Box
       sx={{
-        minHeight: '100vh',
+        minHeight: '100dvh',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        background: 'linear-gradient(135deg, #6366f1 0%, #a855f7 100%)',
-        py: { xs: 2, sm: 4, md: 6 },
-        px: 2
+        background: 'transparent',
+        pt: 'env(safe-area-inset-top)',
+        pb: 'env(safe-area-inset-bottom)',
+        px: 2,
+        overflowY: 'auto'
       }}
     >
       <Container 
+        disableGutters
         maxWidth={false} 
         sx={{ 
           display: 'flex', 

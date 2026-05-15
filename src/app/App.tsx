@@ -25,7 +25,7 @@ const theme = createTheme({
     },
   },
   typography: {
-    fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+    fontFamily: '"Inter", "system-ui", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "Helvetica", "Arial", sans-serif',
     h3: { fontWeight: 800 },
   },
   shape: { borderRadius: 12 },
@@ -52,6 +52,30 @@ export default function App() {
   const [currentLugar, setCurrentLugar] = useState<Lugar | null>(null);
 
   const { latitude, longitude, error: locationError } = useGeolocation();
+
+  // Sincronizar el color del body con la pantalla actual para iOS
+  useEffect(() => {
+    if (currentScreen === 'auth') {
+      // Gradiente total para el Login
+      document.body.style.background = 'linear-gradient(135deg, #6366f1 0%, #a855f7 100%)';
+      document.body.style.backgroundAttachment = 'fixed';
+      
+      const metaThemeColor = document.querySelector('meta[name="theme-color"]');
+      if (metaThemeColor) metaThemeColor.setAttribute('content', '#6366f1');
+    } else if (currentScreen === 'profile') {
+      // Status bar morado (header), pero fondo de página gris (inventario)
+      document.body.style.background = '#f8fafc';
+      
+      const metaThemeColor = document.querySelector('meta[name="theme-color"]');
+      if (metaThemeColor) metaThemeColor.setAttribute('content', '#6366f1');
+    } else {
+      // Mapa y otros: Todo gris claro
+      document.body.style.background = '#f8fafc';
+      
+      const metaThemeColor = document.querySelector('meta[name="theme-color"]');
+      if (metaThemeColor) metaThemeColor.setAttribute('content', '#f8fafc');
+    }
+  }, [currentScreen]);
 
   // Función para sincronizar los puntos del usuario desde el ranking
   const refreshUserPoints = async (currentUser: Usuario) => {
@@ -143,10 +167,10 @@ export default function App() {
       <Toaster position="top-center" richColors />
       
       <Box sx={{ 
-        height: '100vh', 
+        height: '100dvh', 
         display: 'flex', 
         flexDirection: 'column',
-        bgcolor: 'background.default',
+        bgcolor: (currentScreen === 'auth' || currentScreen === 'profile') ? '#6366f1' : 'background.default',
         overflow: 'hidden'
       }}>
         
@@ -154,7 +178,7 @@ export default function App() {
         <Box sx={{ 
           flex: 1, 
           position: 'relative', 
-          overflowY: currentScreen === 'profile' ? 'auto' : 'hidden' 
+          overflowY: (currentScreen === 'profile' || currentScreen === 'auth') ? 'auto' : 'hidden' 
         }}>
           {!user && currentScreen === 'auth' && (
             <AuthScreen onLogin={handleLogin} />
@@ -184,7 +208,17 @@ export default function App() {
 
         {/* Menú de Navegación Inferior (Solo visible si hay usuario y no está en cámara) */}
         {user && currentScreen !== 'auth' && currentScreen !== 'camera' && (
-          <Paper elevation={10} sx={{ borderRadius: 0 }}>
+          <Paper 
+            elevation={10} 
+            sx={{ 
+              borderRadius: 0, 
+              pb: 'env(safe-area-inset-bottom)',
+              bgcolor: 'background.paper',
+              '& .MuiBottomNavigation-root': {
+                bgcolor: 'background.paper'
+              }
+            }}
+          >
             <BottomNavigation
               value={bottomNavValue}
               onChange={handleBottomNavChange}

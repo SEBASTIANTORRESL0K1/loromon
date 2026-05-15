@@ -151,14 +151,14 @@ export function MapScreen({ onOpenCamera, user, location }: MapScreenProps) {
 
   if (loading) {
     return (
-      <Box sx={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: 'background.default' }}>
+      <Box sx={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: 'background.default' }}>
         <CircularProgress />
       </Box>
     );
   }
 
   return (
-    <Box sx={{ height: '100vh', position: 'relative', overflow: 'hidden' }}>
+    <Box sx={{ height: '100%', position: 'relative', overflow: 'hidden' }}>
       {/* Mapa de Leaflet */}
       <MapContainer
         center={mapCenter}
@@ -241,7 +241,7 @@ export function MapScreen({ onOpenCamera, user, location }: MapScreenProps) {
         elevation={4}
         sx={{
           position: 'absolute',
-          top: 16,
+          top: { xs: 'calc(12px + env(safe-area-inset-top))', sm: 16 },
           left: 16,
           right: 16,
           p: 2,
@@ -289,76 +289,77 @@ export function MapScreen({ onOpenCamera, user, location }: MapScreenProps) {
         onClick={() => closestLugar && onOpenCamera(closestLugar)}
         sx={{
           position: 'absolute',
-          bottom: 70,
+          // Ajustado para estar siempre sobre el menú inferior sin importar el dispositivo
+          bottom: 24,
           left: '50%',
           transform: 'translateX(-50%)',
-          width: 80,
-          height: 80,
-          zIndex: 1100,
+          width: { xs: 70, sm: 80 },
+          height: { xs: 70, sm: 80 },
+          zIndex: 1200,
           boxShadow: '0 8px 32px rgba(99, 102, 241, 0.5)',
-          border: '3px solid rgba(255, 255, 255, 0.4)', // Borde sutil cuando está activo
+          border: '3px solid rgba(255, 255, 255, 0.4)',
           transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
           '&:hover': {
             transform: 'translateX(-50%) scale(1.1)',
             border: '3px solid rgba(255, 255, 255, 0.8)',
           },
           '&.Mui-disabled': {
-            bgcolor: '#d1d5db', // Gris medio (más oscuro para contraste)
-            color: '#6b7280',   // Icono gris oscuro (visible pero apagado)
-            boxShadow: '0 2px 10px rgba(0,0,0,0.1)', // Sombra muy tenue para definir volumen
+            bgcolor: '#d1d5db',
+            color: '#6b7280',
+            boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
             border: '3px solid #ffffff', 
           }
         }}
       >
-        <CameraAlt sx={{ fontSize: 40 }} />
+        <CameraAlt sx={{ fontSize: { xs: 35, sm: 40 } }} />
       </Fab>
 
       {/* Indicador de estado o proximidad */}
-      {!isNearFaculty && (
-        <Paper
-          elevation={3}
-          sx={{
-            position: 'absolute',
-            bottom: 165,
-            left: '50%',
-            transform: 'translateX(-50%)',
-            px: 3,
-            py: 1,
-            borderRadius: 2,
-            bgcolor: 'rgba(0, 0, 0, 0.8)',
-            zIndex: 1100,
-            width: 'max-content',
-            maxWidth: '90%'
-          }}
-        >
-          <Typography variant="body2" color="white" textAlign="center">
-            Busca un marcador y acércate a menos de 25m
-          </Typography>
-        </Paper>
-      )}
-
-      {isNearFaculty && closestLugar && (
-        <Paper
-          elevation={3}
-          sx={{
-            position: 'absolute',
-            bottom: 165,
-            left: '50%',
-            transform: 'translateX(-50%)',
-            px: 3,
-            py: 1,
-            borderRadius: 2,
-            bgcolor: 'success.main',
-            zIndex: 1100,
-            width: 'max-content',
-            maxWidth: '90%'
-          }}
-        >
-          <Typography variant="body2" color="white" fontWeight="700">
-            📍 Estás en {closestLugar.nombre}
-          </Typography>
-        </Paper>
-      )}
+      <Box
+        sx={{
+          position: 'absolute',
+          // Posicionado 16px sobre el FAB (FAB height + bottom offset + gap)
+          bottom: { 
+            xs: 24 + 70 + 16, 
+            sm: 24 + 80 + 16 
+          },
+          left: '50%',
+          transform: 'translateX(-50%)',
+          zIndex: 1200,
+          width: 'max-content',
+          maxWidth: '90%'
+        }}
+      >
+        {!isNearFaculty ? (
+          <Paper
+            elevation={3}
+            sx={{
+              px: 3,
+              py: 1,
+              borderRadius: 2,
+              bgcolor: 'rgba(0, 0, 0, 0.8)',
+            }}
+          >
+            <Typography variant="body2" color="white" textAlign="center" sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
+              Busca un marcador y acércate a menos de 25m
+            </Typography>
+          </Paper>
+        ) : closestLugar && (
+          <Paper
+            elevation={3}
+            sx={{
+              px: 3,
+              py: 1,
+              borderRadius: 2,
+              bgcolor: 'success.main',
+            }}
+          >
+            <Typography variant="body2" color="white" fontWeight="700" sx={{ fontSize: { xs: '0.8rem', sm: '0.9rem' } }}>
+              📍 Estás en {closestLugar.nombre}
+            </Typography>
+          </Paper>
+        )}
+      </Box>
     </Box>
   );
 }

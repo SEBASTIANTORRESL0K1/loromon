@@ -100,7 +100,7 @@ export function ProfileScreen({ onLogout, user }: ProfileScreenProps) {
         elevation={0}
         sx={{
           p: { xs: 3, sm: 4 },
-          pt: { xs: 4, sm: 5 },
+          pt: { xs: 'calc(16px + env(safe-area-inset-top))', sm: 5 },
           borderRadius: 0,
           background: 'linear-gradient(135deg, #6366f1 0%, #a855f7 100%)',
           color: 'white',
@@ -109,12 +109,13 @@ export function ProfileScreen({ onLogout, user }: ProfileScreenProps) {
         <Box 
           sx={{ 
             display: 'flex', 
-            alignItems: 'center', 
+            flexDirection: { xs: 'column', sm: 'row' },
+            alignItems: { xs: 'flex-start', sm: 'center' }, 
             justifyContent: 'space-between',
-            gap: { xs: 2, sm: 3 } 
+            gap: { xs: 2.5, sm: 3 } 
           }}
         >
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 2, sm: 3 } }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1.5, sm: 3 }, minWidth: 0 }}>
             <Avatar
               sx={{
                 bgcolor: 'rgba(255, 255, 255, 0.2)',
@@ -124,12 +125,13 @@ export function ProfileScreen({ onLogout, user }: ProfileScreenProps) {
                 fontSize: { xs: '2rem', sm: '2.8rem' },
                 fontWeight: 800,
                 border: '4px solid rgba(255, 255, 255, 0.3)',
-                boxShadow: '0 4px 14px rgba(0,0,0,0.15)'
+                boxShadow: '0 4px 14px rgba(0,0,0,0.15)',
+                flexShrink: 0
               }}
             >
               {user.nombre_usuario[0].toUpperCase()}
             </Avatar>
-            <Box>
+            <Box sx={{ minWidth: 0 }}>
               <Typography 
                 variant="h4" 
                 fontWeight="800" 
@@ -137,24 +139,27 @@ export function ProfileScreen({ onLogout, user }: ProfileScreenProps) {
                   letterSpacing: -1, 
                   fontSize: { xs: '1.6rem', sm: '2.2rem' },
                   lineHeight: 1.1,
-                  mb: 0.5
+                  mb: 0.5,
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap'
                 }}
               >
                 {user.nombre_usuario}
               </Typography>
-              <Typography variant="body2" sx={{ opacity: 0.9, fontWeight: 600, mb: 1 }}>
+              <Typography variant="body2" sx={{ opacity: 0.9, fontWeight: 600, mb: 1, fontSize: { xs: '0.85rem', sm: '0.875rem' } }}>
                 Entrenador LoroMon
               </Typography>
               <Chip
-                icon={<EmojiEvents sx={{ color: 'white !important', fontSize: '1.1rem' }} />}
+                icon={<EmojiEvents sx={{ color: 'white !important', fontSize: { xs: '1rem', sm: '1.1rem' } }} />}
                 label={`${user.puntos || 0} pts`}
                 sx={{
                   bgcolor: 'rgba(255, 255, 255, 0.2)',
                   color: 'white',
                   fontWeight: 800,
                   border: '1px solid rgba(255, 255, 255, 0.3)',
-                  height: 28,
-                  fontSize: '0.85rem'
+                  height: { xs: 26, sm: 28 },
+                  fontSize: { xs: '0.8rem', sm: '0.85rem' }
                 }}
               />
             </Box>
@@ -165,9 +170,10 @@ export function ProfileScreen({ onLogout, user }: ProfileScreenProps) {
             variant="contained"
             onClick={onLogout}
             startIcon={<Logout />}
+            fullWidth={{ xs: true, sm: false } as any}
             sx={{
-              bgcolor: '#ffffff', // Fondo blanco sólido para máximo contraste
-              color: 'primary.main', // Texto en color principal
+              bgcolor: '#ffffff',
+              color: 'primary.main',
               '&:hover': { 
                 bgcolor: '#f8fafc',
                 transform: 'translateY(-2px)' 
@@ -175,14 +181,15 @@ export function ProfileScreen({ onLogout, user }: ProfileScreenProps) {
               textTransform: 'none',
               borderRadius: 3,
               fontWeight: 700,
-              px: { xs: 2, sm: 3 },
-              py: 1,
+              px: { xs: 3, sm: 3 },
+              py: { xs: 1.2, sm: 1 },
+              fontSize: { xs: '0.9rem', sm: '0.9rem' },
               boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
               transition: 'all 0.2s',
-              minWidth: 'fit-content'
+              minWidth: { xs: '100%', sm: 'fit-content' }
             }}
           >
-            Salir
+            Cerrar sesión
           </Button>
         </Box>
       </Card>
@@ -334,7 +341,16 @@ export function ProfileScreen({ onLogout, user }: ProfileScreenProps) {
                         </ListItemAvatar>
                         <ListItemText
                           primary={
-                            <Typography variant="subtitle1" fontWeight="700">
+                            <Typography 
+                              variant="subtitle1" 
+                              fontWeight="700"
+                              sx={{ 
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                whiteSpace: 'nowrap',
+                                maxWidth: { xs: '120px', sm: '200px', md: 'none' }
+                              }}
+                            >
                               {player.nombre_usuario}
                               {player.nombre_usuario === user.nombre_usuario && ' (Tú)'}
                             </Typography>
