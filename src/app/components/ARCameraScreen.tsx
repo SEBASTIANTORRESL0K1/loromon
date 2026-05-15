@@ -5,8 +5,15 @@ import {
   Paper,
   Typography,
   CircularProgress,
+  Button,
+  Card,
+  Alert
 } from '@mui/material';
-import { CameraAlt, Close } from '@mui/icons-material';
+import { 
+  CameraAlt, 
+  Close, 
+  ArrowBack as ArrowBackIcon 
+} from '@mui/icons-material';
 import { Usuario, api, Lugar, Personaje } from '../services/api';
 import { toast } from 'sonner';
 import { Canvas, useFrame } from '@react-three/fiber';
@@ -174,20 +181,38 @@ export function ARCameraScreen({ onCapture, onClose, user, lugar }: ARCameraScre
   };
 
   return (
-    <Box sx={{ height: '100%', position: 'relative', bgcolor: 'black', overflow: 'hidden' }}>
+    <Box sx={{ 
+      height: '100dvh', 
+      position: 'relative', 
+      bgcolor: 'black', 
+      overflow: 'hidden',
+      display: 'flex',
+      flexDirection: 'column'
+    }}>
+      {/* Video de fondo (Capa 0) */}
       <video
         ref={videoRef}
         autoPlay
         playsInline
         muted
-        style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', top: 0, left: 0 }}
+        aria-label="Vista previa de la cámara en vivo"
+        style={{ 
+          width: '100%', 
+          height: '100%', 
+          objectFit: 'cover', 
+          position: 'absolute', 
+          top: 0, 
+          left: 0,
+          zIndex: 0 
+        }}
       />
 
+      {/* Capa AR - Canvas (Capa 1) */}
       {!loading && !error && personajeActual && (
         <Box sx={{ position: 'absolute', inset: 0, zIndex: 10 }}>
           <Canvas shadows>
             <PerspectiveCamera makeDefault position={[0, 0, 3.5]} />
-            <ambientLight intensity={0.7} />
+            <ambientLight intensity={0.8} />
             <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} intensity={1} castShadow />
             <pointLight position={[-10, -10, -10]} intensity={0.5} />
             
@@ -202,54 +227,189 @@ export function ARCameraScreen({ onCapture, onClose, user, lugar }: ARCameraScre
         </Box>
       )}
 
+      {/* Overlay de Carga (Capa Superior) */}
       {loading && (
-        <Box sx={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', bgcolor: 'rgba(0,0,0,0.8)', zIndex: 2000 }}>
-          <CircularProgress size={60} sx={{ mb: 2 }} />
-          <Typography color="white">Iniciando visor AR...</Typography>
+        <Box 
+          role="status"
+          aria-live="polite"
+          sx={{ 
+            position: 'absolute', 
+            inset: 0, 
+            display: 'flex', 
+            flexDirection: 'column', 
+            alignItems: 'center', 
+            justifyContent: 'center', 
+            bgcolor: 'primary.main', // Color primario sólido para carga consistente
+            zIndex: 2000 
+          }}
+        >
+          <CircularProgress size={60} sx={{ mb: 3, color: 'white' }} aria-label="Cargando visor de realidad aumentada" />
+          <Typography color="white" variant="h6" fontWeight="800">Cargando Visor AR...</Typography>
+          <Typography color="white" variant="body2" sx={{ opacity: 0.8 }}>Prepara tu cámara</Typography>
         </Box>
       )}
 
-      <Paper
-        elevation={4}
-        sx={{
-          position: 'absolute',
-          top: 16,
-          left: 16,
-          right: 16,
-          p: 2,
-          bgcolor: 'rgba(0, 0, 0, 0.7)',
-          borderRadius: 3,
-          backdropFilter: 'blur(10px)',
-          border: '1px solid rgba(255,255,255,0.1)',
+      {/* Cabecera UI: Navegación e Información (Capa 2) */}
+      <Box sx={{ 
+        position: 'absolute', 
+        top: 0, 
+        left: 0, 
+        right: 0, 
+        p: { xs: 2, sm: 3 },
+        pt: 'calc(16px + env(safe-area-inset-top))',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        gap: 2,
+        zIndex: 100,
+        pointerEvents: 'none'
+      }}>
+        {/* Botón Volver (Ahora a la Izquierda) */}
+        <Fab
+          size="medium"
+          onClick={onClose}
+          aria-label="Volver al mapa"
+          sx={{ 
+            bgcolor: 'rgba(255, 255, 255, 0.9)',
+            color: 'primary.main',
+            '&:hover': { 
+              bgcolor: '#ffffff',
+              transform: 'scale(1.1)' 
+            },
+            boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+            pointerEvents: 'auto',
+            flexShrink: 0,
+            width: { xs: 45, sm: 56 },
+            height: { xs: 45, sm: 56 }
+          }}
+        >
+          <ArrowBackIcon />
+        </Fab>
+
+        {/* Tarjeta de Información (Ahora a la Derecha y más refinada) */}
+        <Card
+          elevation={10}
+          role="region"
+          aria-label="Información del lugar y personaje"
+          sx={{
+            p: { xs: 1.2, sm: 1.5 },
+            bgcolor: 'rgba(255, 255, 255, 0.9)',
+            borderRadius: '16px 4px 16px 16px', // Esquinas asimétricas para estilo moderno
+            borderRight: (theme) => `5px solid ${theme.palette.primary.main}`, // Borde a la derecha para equilibrio
+            flexShrink: 1,
+            maxWidth: { xs: '220px', sm: '320px' },
+            pointerEvents: 'auto',
+            backdropFilter: 'blur(10px)',
+            boxShadow: '0 8px 32px rgba(0,0,0,0.15)',
+            textAlign: 'right' // Texto alineado a la derecha
+          }}
+        >
+          <Typography 
+            variant="subtitle1" 
+            color="text.primary" 
+            fontWeight="900"
+            sx={{ 
+              fontSize: { xs: '0.9rem', sm: '1.05rem' }, 
+              lineHeight: 1.1,
+              mb: 0.5,
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis'
+            }}
+          >
+            {lugar?.nombre || 'Ubicación'}
+          </Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 1 }}>
+            <Typography 
+              variant="caption" 
+              color="text.primary" // Mejorado contraste (de secondary a primary)
+              fontWeight="700"
+              sx={{ 
+                fontSize: { xs: '0.75rem', sm: '0.85rem' },
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis'
+              }}
+            >
+              {personajeActual?.nombre_personaje}
+            </Typography>
+            <Typography 
+              variant="caption" 
+              color="primary.main" 
+              fontWeight="900"
+              aria-label={`Personaje ${indexPersonaje + 1} de 2`}
+              sx={{ 
+                bgcolor: '#e0e7ff', 
+                px: 1, 
+                py: 0.2, 
+                borderRadius: 1,
+                fontSize: { xs: '0.7rem', sm: '0.8rem' }
+              }}
+            >
+              {indexPersonaje + 1}/2
+            </Typography>
+          </Box>
+        </Card>
+      </Box>
+
+      {/* Pie de UI: Botón de Captura (Capa 2) */}
+      <Box 
+        sx={{ 
+          position: 'absolute', 
+          bottom: 0, 
+          left: 0, 
+          right: 0, 
+          p: 4,
+          pb: 'calc(30px + env(safe-area-inset-bottom))',
+          display: 'flex', 
+          justifyContent: 'center', 
+          alignItems: 'center',
           zIndex: 100,
+          pointerEvents: 'none'
         }}
       >
-        <Typography variant="h6" color="white" fontWeight="800">
-          {lugar?.nombre || 'Ubicación Desconocida'}
-        </Typography>
-        <Typography variant="body2" color="primary.light" fontWeight="bold">
-          {personajeActual?.nombre_personaje} ({indexPersonaje + 1}/2)
-        </Typography>
-      </Paper>
-
-      <Fab
-        size="small"
-        onClick={onClose}
-        sx={{ position: 'absolute', top: 16, right: 16, bgcolor: 'rgba(0, 0, 0, 0.5)', color: 'white', zIndex: 110 }}
-      >
-        <Close />
-      </Fab>
-
-      <Box sx={{ position: 'absolute', bottom: 40, left: 0, right: 0, display: 'flex', justifyContent: 'center', zIndex: 100 }}>
         <Fab
           color="primary"
           onClick={handleCapture}
           disabled={capturing || loading || !!error}
-          sx={{ width: 90, height: 90, boxShadow: '0 0 20px rgba(99, 102, 241, 0.6)' }}
+          aria-label="Capturar personaje"
+          sx={{ 
+            width: { xs: 80, sm: 90 }, 
+            height: { xs: 80, sm: 90 }, 
+            bgcolor: 'primary.main',
+            boxShadow: '0 8px 32px rgba(90, 92, 224, 0.4)',
+            border: '3px solid #ffffff', // Borde blanco de alto contraste
+            pointerEvents: 'auto',
+            transition: 'all 0.2s',
+            '&:active': { transform: 'scale(0.9)' },
+            '&:hover': { bgcolor: '#4338ca', border: '3px solid #ffffff' }
+          }}
         >
-          {capturing ? <CircularProgress size={40} color="inherit" /> : <CameraAlt sx={{ fontSize: 45 }} />}
+          {capturing ? (
+            <CircularProgress size={40} color="inherit" />
+          ) : (
+            <CameraAlt sx={{ fontSize: { xs: 35, sm: 40 }, color: 'white' }} />
+          )}
         </Fab>
       </Box>
+
+      {/* Mensajes de Error con contraste */}
+      {error && (
+        <Box sx={{ 
+          position: 'absolute', 
+          top: '50%', 
+          left: '50%', 
+          transform: 'translate(-50%, -50%)',
+          width: '80%',
+          zIndex: 3000 
+        }}>
+          <Card sx={{ p: 3, textAlign: 'center', borderTop: '4px solid #ef4444' }}>
+            <Typography variant="h6" color="error" fontWeight="800" gutterBottom>Error de Cámara</Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>{error}</Typography>
+            <Button variant="contained" onClick={onClose} fullWidth sx={{ borderRadius: 2 }}>Volver al Mapa</Button>
+          </Card>
+        </Box>
+      )}
     </Box>
   );
 }

@@ -160,10 +160,11 @@ export function AuthScreen({ onLogin }: AuthScreenProps) {
           sx={{
             p: { xs: 3, sm: 4, md: 5 },
             borderRadius: { xs: 3, sm: 4 },
-            bgcolor: 'rgba(255, 255, 255, 0.95)',
-            backdropFilter: 'blur(10px)',
+            bgcolor: '#ffffff',
             textAlign: 'center',
-            width: '100%'
+            width: '100%',
+            position: 'relative',
+            zIndex: 1
           }}
         >
           <Box sx={{ mb: 4 }}>
@@ -221,6 +222,30 @@ export function AuthScreen({ onLogin }: AuthScreenProps) {
                   helperText={usernameError || "Usa entre 3 y 30 letras, números o guiones bajos."}
                   disabled={loading}
                   autoComplete="username"
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      '& fieldset': {
+                        borderColor: '#767676',
+                        borderWidth: '1.5px', // Un poco más grueso (antes 1px)
+                        opacity: 1
+                      },
+                      '&:hover fieldset': {
+                        borderColor: '#4338ca',
+                        borderWidth: '2px', // Aumenta al pasar el mouse
+                      },
+                      '&.Mui-focused fieldset': {
+                        borderColor: '#4338ca',
+                        borderWidth: '2px',
+                      },
+                    },
+                    '& .MuiInputLabel-root': {
+                      color: '#595959',
+                    },
+                    '& .MuiInputBase-input::placeholder': {
+                      color: '#595959',
+                      opacity: 1,
+                    }
+                  }}
                   slotProps={{
                     input: {
                       startAdornment: (
@@ -247,6 +272,30 @@ export function AuthScreen({ onLogin }: AuthScreenProps) {
                 helperText={emailError}
                 disabled={loading}
                 autoComplete="email"
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      '& fieldset': {
+                        borderColor: '#767676',
+                        borderWidth: '1.5px',
+                        opacity: 1
+                      },
+                      '&:hover fieldset': {
+                        borderColor: '#4338ca',
+                        borderWidth: '2px',
+                      },
+                      '&.Mui-focused fieldset': {
+                        borderColor: '#4338ca',
+                        borderWidth: '2px',
+                      },
+                    },
+                    '& .MuiInputLabel-root': {
+                      color: '#595959',
+                    },
+                    '& .MuiInputBase-input::placeholder': {
+                      color: '#595959',
+                      opacity: 1,
+                    }
+                  }}
                 slotProps={{
                   input: {
                     startAdornment: (
@@ -271,6 +320,30 @@ export function AuthScreen({ onLogin }: AuthScreenProps) {
                 helperText={passwordError || (!isLogin ? "Debe tener entre 8 y 64 caracteres." : "")}
                 disabled={loading}
                 autoComplete={isLogin ? "current-password" : "new-password"}
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      '& fieldset': {
+                        borderColor: '#767676',
+                        borderWidth: '1.5px',
+                        opacity: 1
+                      },
+                      '&:hover fieldset': {
+                        borderColor: '#4338ca',
+                        borderWidth: '2px',
+                      },
+                      '&.Mui-focused fieldset': {
+                        borderColor: '#4338ca',
+                        borderWidth: '2px',
+                      },
+                    },
+                    '& .MuiInputLabel-root': {
+                      color: '#595959',
+                    },
+                    '& .MuiInputBase-input::placeholder': {
+                      color: '#595959',
+                      opacity: 1,
+                    }
+                  }}
                 slotProps={{
                   input: {
                     startAdornment: (
@@ -308,7 +381,7 @@ export function AuthScreen({ onLogin }: AuthScreenProps) {
                   py: 1.8, 
                   borderRadius: 3,
                   fontSize: '1rem',
-                  bgcolor: '#4f46e5', // Indigo 600 para mejor contraste con texto blanco
+                  bgcolor: 'primary.main', 
                   '&:hover': { bgcolor: '#4338ca' }, // Indigo 700 al pasar el mouse
                   boxShadow: '0 4px 14px 0 rgba(79, 70, 229, 0.39)'
                 }}

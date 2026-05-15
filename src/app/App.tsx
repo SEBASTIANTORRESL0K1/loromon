@@ -14,7 +14,7 @@ const theme = createTheme({
   palette: {
     mode: 'light',
     primary: {
-      main: '#6366f1',
+      main: '#4f46e5', // Indigo 600 - Pasa ratio 4.5:1 sobre #e0e7ff y blanco
     },
     secondary: {
       main: '#ec4899',
@@ -56,9 +56,9 @@ export default function App() {
   // Sincronizar el color del body con la pantalla actual para iOS
   useEffect(() => {
     if (currentScreen === 'auth') {
-      // Gradiente total para el Login
-      document.body.style.background = 'linear-gradient(135deg, #6366f1 0%, #a855f7 100%)';
-      document.body.style.backgroundAttachment = 'fixed';
+      // Color sólido original para el Login
+      document.body.style.backgroundColor = '#6366f1';
+      document.body.style.background = '#6366f1';
       
       const metaThemeColor = document.querySelector('meta[name="theme-color"]');
       if (metaThemeColor) metaThemeColor.setAttribute('content', '#6366f1');
