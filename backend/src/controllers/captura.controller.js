@@ -93,3 +93,40 @@ export const capturarPersonaje = async (req, res) => {
         }
     }
 };
+
+/**
+ * Obtiene la lista de personajes capturados por un usuario específico.
+ */
+export const getCapturasUsuario = async (req, res) => {
+    const { id_usuario } = req.params;
+
+    if (!id_usuario) {
+        return res.status(400).json({ message: "Se requiere id_usuario." });
+    }
+
+    try {
+        const [rows] = await pool.query(
+            `SELECT p.id_personaje,
+                    p.nombre_personaje,
+                    p.ruta_modelo,
+                    p.valor_puntos,
+                    p.es_especial,
+                    COUNT(*) AS veces_capturado
+             FROM Captura c
+             INNER JOIN Personaje p ON c.id_personaje = p.id_personaje
+             WHERE c.id_usuario = ?
+             GROUP BY p.id_personaje,
+                      p.nombre_personaje,
+                      p.ruta_modelo,
+                      p.valor_puntos,
+                      p.es_especial`,
+            [id_usuario]
+        );
+
+        res.status(200).json(rows);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Error al obtener las capturas del usuario." });
+    }
+};
+
