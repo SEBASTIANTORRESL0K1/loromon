@@ -49,11 +49,7 @@ export default function App() {
   const [currentScreen, setCurrentScreen] = useState<Screen>('auth');
   const [user, setUser] = useState<Usuario | null>(null);
   const [bottomNavValue, setBottomNavValue] = useState(0);
-<<<<<<< Updated upstream
   const [currentLugar, setCurrentLugar] = useState<Lugar | null>(null);
-=======
-  const [activeLugar, setActiveLugar] = useState<any>(null);
->>>>>>> Stashed changes
 
   const { latitude, longitude, error: locationError } = useGeolocation();
 
@@ -114,7 +110,6 @@ export default function App() {
     setBottomNavValue(0);
   };
 
-<<<<<<< Updated upstream
   const handleOpenCamera = (lugar: Lugar) => {
     setCurrentLugar(lugar);
     setCurrentScreen('camera');
@@ -127,13 +122,7 @@ export default function App() {
       refreshUserPoints(user);
     }
   };
-=======
-  const handleOpenCamera = (lugar: any) => {
-    setActiveLugar(lugar);
-    setCurrentScreen('camera');
-  };
-  const handleCapture = () => setCurrentScreen('map');
->>>>>>> Stashed changes
+
   const handleCloseCamera = () => setCurrentScreen('map');
 
   const handleBottomNavChange = (_: any, newValue: number) => {
@@ -179,20 +168,12 @@ export default function App() {
             />
           )}
 
-<<<<<<< Updated upstream
           {user && currentScreen === 'camera' && currentLugar && (
-=======
-          {user && currentScreen === 'camera' && (
->>>>>>> Stashed changes
             <ARCameraScreen 
               onCapture={handleCapture} 
               onClose={handleCloseCamera} 
               user={user}
-<<<<<<< Updated upstream
               lugar={currentLugar}
-=======
-              lugar={activeLugar}
->>>>>>> Stashed changes
             />
           )}
 

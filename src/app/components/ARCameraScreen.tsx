@@ -9,30 +9,17 @@ import {
   CircularProgress,
 } from '@mui/material';
 import { CameraAlt, Close } from '@mui/icons-material';
-<<<<<<< Updated upstream
-import { Usuario, Lugar, api } from '../services/api';
-import { toast } from 'sonner';
-=======
 import { Usuario, api, Lugar, Personaje } from '../services/api';
 import { toast } from 'sonner';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { useGLTF, OrbitControls, Environment, PerspectiveCamera, ContactShadows } from '@react-three/drei';
 import * as THREE from 'three';
->>>>>>> Stashed changes
 
 interface ARCameraScreenProps {
   onCapture: (puntos: number) => void;
   onClose: () => void;
   user: Usuario;
-<<<<<<< Updated upstream
   lugar: Lugar;
-}
-
-export function ARCameraScreen({ onCapture, onClose, user, lugar }: ARCameraScreenProps) {
-  const [showHint, setShowHint] = useState(true);
-  const [captured, setCaptured] = useState(false);
-=======
-  lugar: Lugar | null;
 }
 
 // Componente para cargar y mostrar el modelo 3D
@@ -68,9 +55,7 @@ function Model({ url, capturing }: { url: string; capturing: boolean }) {
 
 export function ARCameraScreen({ onCapture, onClose, user, lugar }: ARCameraScreenProps) {
   const [capturing, setCapturing] = useState(false);
->>>>>>> Stashed changes
   const [loading, setLoading] = useState(true);
-  const [capturing, setCapturing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [personajeActual, setPersonajeActual] = useState<Personaje | null>(null);
   const [indexPersonaje, setIndexPersonaje] = useState(0);
@@ -78,19 +63,12 @@ export function ARCameraScreen({ onCapture, onClose, user, lugar }: ARCameraScre
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
 
-<<<<<<< Updated upstream
-  // El personaje a mostrar será el personaje1 del lugar por defecto
-  const personaje = lugar.personaje1;
-
-  // Activar la cámara al montar el componente
-=======
   useEffect(() => {
     if (lugar) {
       setPersonajeActual(lugar.personaje1);
     }
   }, [lugar]);
 
->>>>>>> Stashed changes
   useEffect(() => {
     async function startCamera() {
       try {
@@ -111,11 +89,7 @@ export function ARCameraScreen({ onCapture, onClose, user, lugar }: ARCameraScre
         setLoading(false);
       } catch (err) {
         console.error("Error al acceder a la cámara:", err);
-<<<<<<< Updated upstream
-        setError("No se pudo acceder a la cámara. Por favor, asegura los permisos.");
-=======
         setError("No se pudo acceder a la cámara. Asegúrate de dar permisos HTTPS.");
->>>>>>> Stashed changes
         setLoading(false);
       }
     }
@@ -130,27 +104,6 @@ export function ARCameraScreen({ onCapture, onClose, user, lugar }: ARCameraScre
   }, []);
 
   const handleCapture = async () => {
-<<<<<<< Updated upstream
-    if (capturing) return;
-    
-    try {
-      setCapturing(true);
-      // Llamada real a la API para registrar la captura
-      const response = await api.capturar(user.id_usuario, personaje.id_personaje);
-      
-      setCaptured(true);
-      
-      // Esperar la animación y notificar éxito
-      setTimeout(() => {
-        onCapture(response.puntosObtenidos);
-      }, 2000);
-      
-    } catch (err: any) {
-      console.error("Error en captura:", err);
-      toast.error(err.message || "Error al capturar LoroMon");
-      setCapturing(false);
-    }
-=======
     if (!personajeActual || capturing) return;
 
     try {
@@ -163,7 +116,6 @@ export function ARCameraScreen({ onCapture, onClose, user, lugar }: ARCameraScre
       const result = await api.capturar(user.id_usuario, personajeActual.id_personaje);
       
       console.log("Resultado captura:", result);
-      toast.success(`¡${personajeActual.nombre_personaje} capturado! +${result.puntosObtenidos} pts`);
       
       // Esperar a que termine la animación de encogimiento
       setTimeout(() => {
@@ -171,8 +123,9 @@ export function ARCameraScreen({ onCapture, onClose, user, lugar }: ARCameraScre
           setIndexPersonaje(1);
           setPersonajeActual(lugar.personaje2);
           setCapturing(false);
+          toast.success(`¡${personajeActual.nombre_personaje} capturado! +${result.puntosObtenidos} pts`);
         } else {
-          onCapture();
+          onCapture(result.puntosObtenidos);
         }
       }, 1000);
 
@@ -198,7 +151,6 @@ export function ARCameraScreen({ onCapture, onClose, user, lugar }: ARCameraScre
   const getModelUrl = (path: string) => {
     const baseUrl = (import.meta as any).env.VITE_API_URL.replace('/api', '');
     return `${baseUrl}/${path}`;
->>>>>>> Stashed changes
   };
 
   return (
@@ -212,121 +164,6 @@ export function ARCameraScreen({ onCapture, onClose, user, lugar }: ARCameraScre
         style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', top: 0, left: 0 }}
       />
 
-<<<<<<< Updated upstream
-      {/* Overlay de Carga o Error */}
-      {(loading || error) && (
-        <Box
-          sx={{
-            position: 'absolute',
-            inset: 0,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            bgcolor: 'rgba(0,0,0,0.8)',
-            zIndex: 2000,
-            p: 3,
-            textAlign: 'center'
-          }}
-        >
-          {loading && !error && (
-            <>
-              <CircularProgress size={60} sx={{ mb: 2 }} />
-              <Typography color="white">Buscando LoroMons...</Typography>
-            </>
-          )}
-          {error && (
-            <>
-              <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>
-              <Fab variant="extended" color="primary" onClick={onClose}>
-                <Close sx={{ mr: 1 }} /> Volver al mapa
-              </Fab>
-            </>
-          )}
-        </Box>
-      )}
-
-      {/* Capa de Realidad Aumentada */}
-      {!loading && !error && (
-        <Box
-          sx={{
-            position: 'absolute',
-            inset: 0,
-            pointerEvents: 'none',
-            zIndex: 10,
-          }}
-        >
-          <Box
-            sx={{
-              position: 'absolute',
-              top: '45%',
-              left: '50%',
-              transform: 'translate(-50%, -50%)',
-              width: 200,
-              height: 200,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              animation: captured ? 'none' : 'float 3s ease-in-out infinite',
-              '@keyframes float': {
-                '0%, 100%': { transform: 'translate(-50%, -50%) translateY(0px)' },
-                '50%': { transform: 'translate(-50%, -50%) translateY(-20px)' },
-              },
-              pointerEvents: 'auto'
-            }}
-          >
-            {/* Personaje temporal (Emoji) */}
-            <Box
-              sx={{
-                fontSize: '140px',
-                filter: captured ? 'brightness(1.5) scale(0)' : 'drop-shadow(0 0 20px rgba(100, 200, 255, 0.6))',
-                transition: 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
-                transform: captured ? 'scale(0)' : 'scale(1)',
-              }}
-            >
-              🦜
-            </Box>
-          </Box>
-
-          {/* Grid de enfoque AR */}
-          <Box
-            sx={{
-              position: 'absolute',
-              top: '45%',
-              left: '50%',
-              transform: 'translate(-50%, -50%)',
-              width: 260,
-              height: 260,
-              border: '2px dashed rgba(255, 255, 255, 0.5)',
-              borderRadius: '50%',
-              pointerEvents: 'none',
-            }}
-          />
-        </Box>
-      )}
-
-      {/* Banner superior con instrucción */}
-      <Snackbar
-        open={showHint && !captured && !loading && !error}
-        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-        sx={{ top: { xs: 100, sm: 120 } }}
-      >
-        <Alert
-          severity="info"
-          onClose={() => setShowHint(false)}
-          sx={{
-            bgcolor: 'rgba(0, 0, 0, 0.8)',
-            color: 'white',
-            backdropFilter: 'blur(4px)',
-            '& .MuiAlert-icon': { color: 'primary.light' },
-          }}
-        >
-          Apunta con la cámara para capturar a {personaje.nombre_personaje}
-        </Alert>
-      </Snackbar>
-
-      {/* Información del LoroMon */}
-=======
       {/* Visor 3D (Three.js) */}
       {!loading && !error && personajeActual && (
         <Box sx={{ position: 'absolute', inset: 0, zIndex: 10 }}>
@@ -356,7 +193,6 @@ export function ARCameraScreen({ onCapture, onClose, user, lugar }: ARCameraScre
       )}
 
       {/* Información del Lugar y Personaje */}
->>>>>>> Stashed changes
       <Paper
         elevation={4}
         sx={{
@@ -373,17 +209,10 @@ export function ARCameraScreen({ onCapture, onClose, user, lugar }: ARCameraScre
         }}
       >
         <Typography variant="h6" color="white" fontWeight="800">
-<<<<<<< Updated upstream
-          {personaje.nombre_personaje} Salvaje
-        </Typography>
-        <Typography variant="body2" color="rgba(255, 255, 255, 0.7)">
-          Valor: {personaje.valor_puntos} pts • Ubicación: {lugar.nombre}
-=======
           {lugar?.nombre || 'Ubicación Desconocida'}
         </Typography>
         <Typography variant="body2" color="primary.light" fontWeight="bold">
           {personajeActual?.nombre_personaje} ({indexPersonaje + 1}/2)
->>>>>>> Stashed changes
         </Typography>
       </Paper>
 
@@ -400,47 +229,12 @@ export function ARCameraScreen({ onCapture, onClose, user, lugar }: ARCameraScre
         <Fab
           color="primary"
           onClick={handleCapture}
-<<<<<<< Updated upstream
-          disabled={captured || loading || !!error || capturing}
-          sx={{
-            width: 90,
-            height: 90,
-            boxShadow: '0 0 20px rgba(99, 102, 241, 0.6)',
-            '& .MuiSvgIcon-root': { fontSize: 45 }
-          }}
-        >
-          {capturing ? <CircularProgress size={40} color="inherit" /> : <CameraAlt />}
-        </Fab>
-      </Box>
-
-      {/* Mensaje de éxito */}
-      <Snackbar
-        open={captured}
-        anchorOrigin={{ vertical: 'center', horizontal: 'center' }}
-      >
-        <Alert
-          severity="success"
-          variant="filled"
-          sx={{
-            fontSize: '1.2rem',
-            fontWeight: 'bold',
-            borderRadius: 4,
-            px: 4,
-            py: 2,
-            boxShadow: '0 8px 32px rgba(0,0,0,0.5)'
-          }}
-        >
-          ¡{personaje.nombre_personaje.toUpperCase()} CAPTURADO! 🎉
-        </Alert>
-      </Snackbar>
-=======
           disabled={capturing || loading || !!error}
           sx={{ width: 90, height: 90, boxShadow: '0 0 20px rgba(99, 102, 241, 0.6)' }}
         >
           {capturing ? <CircularProgress size={40} color="inherit" /> : <CameraAlt sx={{ fontSize: 45 }} />}
         </Fab>
       </Box>
->>>>>>> Stashed changes
     </Box>
   );
 }

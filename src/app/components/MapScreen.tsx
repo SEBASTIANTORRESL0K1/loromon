@@ -285,11 +285,7 @@ export function MapScreen({ onOpenCamera, user, location }: MapScreenProps) {
       <Fab
         color="primary"
         aria-label="abrir cámara AR"
-<<<<<<< Updated upstream
         disabled={!isNearFaculty || !closestLugar}
-=======
-        disabled={!isNearFaculty}
->>>>>>> Stashed changes
         onClick={() => closestLugar && onOpenCamera(closestLugar)}
         sx={{
           position: 'absolute',
