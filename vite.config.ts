@@ -34,6 +34,11 @@ export default defineConfig({
         changeOrigin: true,
         secure: false,
       },
+      '/models': {
+        target: 'https://loromon-production.up.railway.app',
+        changeOrigin: true,
+        secure: false,
+      },
     },
   },
   resolve: {

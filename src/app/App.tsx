@@ -63,8 +63,9 @@ export default function App() {
       const metaThemeColor = document.querySelector('meta[name="theme-color"]');
       if (metaThemeColor) metaThemeColor.setAttribute('content', '#6366f1');
     } else if (currentScreen === 'profile') {
-      // Status bar morado (header), pero fondo de página gris (inventario)
-      document.body.style.background = '#f8fafc';
+      // Top overscroll morado (status bar), Bottom overscroll gris (para que no se vea morado abajo)
+      document.body.style.background = 'linear-gradient(to bottom, #6366f1 50%, #f8fafc 50%)';
+      document.body.style.backgroundAttachment = 'fixed';
       
       const metaThemeColor = document.querySelector('meta[name="theme-color"]');
       if (metaThemeColor) metaThemeColor.setAttribute('content', '#6366f1');

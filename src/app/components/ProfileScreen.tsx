@@ -91,6 +91,7 @@ export function ProfileScreen({ onLogout, user }: ProfileScreenProps) {
     <Box
       sx={{
         width: '100%',
+        minHeight: '100%',
         bgcolor: 'background.default',
         pb: 4,
       }}
@@ -230,10 +231,12 @@ export function ProfileScreen({ onLogout, user }: ProfileScreenProps) {
                   sx={{
                     display: 'grid',
                     gridTemplateColumns: {
-                      xs: 'repeat(2, 1fr)',
-                      sm: 'repeat(3, 1fr)',
+                      xs: 'repeat(2, minmax(0, 1fr))',
+                      sm: 'repeat(3, minmax(0, 1fr))',
                     },
                     gap: 2,
+                    width: '100%',
+                    boxSizing: 'border-box'
                   }}
                 >
                   {characters.length === 0 ? (
@@ -248,12 +251,20 @@ export function ProfileScreen({ onLogout, user }: ProfileScreenProps) {
                         key={character.id_personaje}
                         elevation={1}
                         sx={{
-                          p: 2,
+                          p: { xs: 1.5, sm: 2 },
                           textAlign: 'center',
                           borderRadius: 3,
                           transition: 'all 0.2s',
                           border: '1px solid',
                           borderColor: 'divider',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          height: '100%',
+                          minHeight: { xs: 140, sm: 160 },
+                          boxSizing: 'border-box',
+                          overflow: 'hidden',
                           '&:hover': {
                             transform: 'translateY(-4px)',
                             boxShadow: 4,
@@ -261,14 +272,29 @@ export function ProfileScreen({ onLogout, user }: ProfileScreenProps) {
                           },
                         }}
                       >
-                        <Box sx={{ fontSize: '3rem', mb: 1 }}>👾</Box>
-                        <Typography variant="subtitle2" fontWeight="700" noWrap title={character.nombre_personaje}>
+                        <Box sx={{ fontSize: { xs: '2.5rem', sm: '3rem' }, mb: 1 }}>👾</Box>
+                        <Typography 
+                          variant="subtitle2" 
+                          fontWeight="700" 
+                          noWrap 
+                          title={character.nombre_personaje}
+                          sx={{ 
+                            width: '100%',
+                            fontSize: { xs: '0.8rem', sm: '0.875rem' }
+                          }}
+                        >
                           {character.nombre_personaje}
                         </Typography>
-                        <Typography variant="caption" color="text.secondary">
+                        <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: '0.7rem', sm: '0.75rem' } }}>
                           {getRarityStars(character.es_especial)}
                         </Typography>
-                        <Typography variant="caption" display="block" color="primary" fontWeight="600">
+                        <Typography 
+                          variant="caption" 
+                          display="block" 
+                          color="primary" 
+                          fontWeight="600"
+                          sx={{ mt: 0.5, fontSize: { xs: '0.75rem', sm: '0.8rem' } }}
+                        >
                           {character.valor_puntos} pts
                         </Typography>
                       </Paper>
