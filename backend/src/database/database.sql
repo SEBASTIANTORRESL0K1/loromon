@@ -65,13 +65,13 @@ INSERT INTO Personaje (id_personaje, nombre_personaje, ruta_modelo, valor_puntos
 (7, 'Enfermero', 'models/Enfermeria/jeringa_frasco.glb', 100, FALSE),
 (8, 'Enfermera', 'models/Enfermeria/Enfermera_ChambaNereyda.glb', 100, FALSE),
 (9, 'Trabajador Social', 'models/Trabajo-Social/trabajadora.glb', 100, FALSE),
-(10, 'Trabajadora Social', 'models/Trabajo-Social/trabajadora.glb', 100, FALSE),
+(10, 'Prefecto', 'models/Trabajo-Social/prefecto.glb', 100, FALSE),
 (11, 'Rector', 'models/Psicologia/SimboloPsicologia.glb', 1000, TRUE),
 (12, 'Loro', 'models/pokeball-lowpoly.glb', 500, TRUE),
 (13, 'Estudiante de Intercambio', 'models/CEI/Maestra1Keiry.glb', 100, FALSE),
 (14, 'Lingüista', 'models/CEI/Maestra2Keiry.glb', 100, FALSE),
-(15, 'Contador', 'models/Servicios/chef.glb', 100, FALSE),
-(16, 'Administradora', 'models/Servicios/conserje-fast-medium.glb', 100, FALSE);
+(15, 'Cocinero', 'models/Servicios/chef.glb', 100, FALSE),
+(16, 'Conserje', 'models/Servicios/conserje.glb', 100, FALSE);
 
 
 -- Insertar Lugares con sus coordenadas (centroide calculado) y personajes asignados
