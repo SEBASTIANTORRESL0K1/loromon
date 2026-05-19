@@ -44,15 +44,21 @@ function Model({ url, capturing }: { url: string; capturing: boolean }) {
     const targetScale = 1.8 / maxDim;
     clone.scale.setScalar(targetScale);
     
-    // Centrar el modelo
+    // Centrar en X y Z, pero alinear el suelo (mínimo Y) a 0
     const center = new THREE.Vector3();
     box.getCenter(center);
     clone.position.x = -center.x * targetScale;
-    clone.position.y = -center.y * targetScale;
     clone.position.z = -center.z * targetScale;
     
-    // Ajustar posición base para que los pies queden cerca del suelo (-0.9 aprox)
-    clone.position.y -= 0.1; 
+    // Alinear la base del modelo (pies) exactamente en y = 0
+    clone.position.y = -box.min.y * targetScale;
+
+    // Desactivar frustum culling para evitar que desaparezca en ciertos ángulos
+    clone.traverse((child: any) => {
+      if (child.isMesh) {
+        child.frustumCulled = false;
+      }
+    });
 
     return clone;
   }, [scene]);
@@ -68,14 +74,14 @@ function Model({ url, capturing }: { url: string; capturing: boolean }) {
         // Regresar a escala normal si no está capturando
         modelRef.current.scale.lerp(new THREE.Vector3(1, 1, 1), 0.1);
         modelRef.current.rotation.y += 0.01;
-        // Efecto sutil de flotación
-        modelRef.current.position.y = (Math.sin(state.clock.elapsedTime) * 0.05);
+        // Efecto sutil de flotación (sobre el eje corregido)
+        modelRef.current.position.y = -1.2 + (Math.sin(state.clock.elapsedTime) * 0.05);
       }
     }
   });
 
   return (
-    <group ref={modelRef} position={[0, -0.5, 0]}>
+    <group ref={modelRef} position={[0, -1.2, 0]}>
       <primitive object={normalizedScene} />
     </group>
   );
