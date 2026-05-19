@@ -65,7 +65,7 @@ INSERT INTO Personaje (id_personaje, nombre_personaje, ruta_modelo, valor_puntos
 (7, 'Enfermero', 'models/Enfermeria/jeringa_frasco.glb', 100, FALSE),
 (8, 'Enfermera', 'models/Enfermeria/Enfermera_ChambaNereyda.glb', 100, FALSE),
 (9, 'Trabajador Social', 'models/Trabajo-Social/trabajadora.glb', 100, FALSE),
-(10, 'Trabajadora Social', 'models/Trabajo-Social/trabajadora.glb', 100, FALSE),
+(10, 'Trabajadora Social', 'models/Trabajo-Social/trabajadora2.glb', 100, FALSE),
 (11, 'Rector', 'models/Psicologia/SimboloPsicologia.glb', 1000, TRUE),
 (12, 'Loro', 'models/pokeball-lowpoly.glb', 500, TRUE),
 (13, 'Estudiante de Intercambio', 'models/CEI/Maestra1Keiry.glb', 100, FALSE),
@@ -83,7 +83,8 @@ INSERT INTO Lugares (nombre, latitud, longitud, id_personaje_1, id_personaje_2) 
 ('Facultad de Trabajo Social', 19.248092, -103.698384, 9, 10),
 ('Rectoria', 19.248888, -103.698741, 11, 12),
 ('CEI', 19.249439, -103.698500, 13, 14),
-('Servicios', 19.249608, -103.698995, 15, 16);
+('Servicios', 19.249608, -103.698995, 15, 16),
+('Casa de Sebastian', 19.231785, -103.741710, 9, 10);
 
 -- Insertar Usuarios de muestra
 INSERT INTO Usuario (nombre_usuario, correo, contrasena, puntos) VALUES
