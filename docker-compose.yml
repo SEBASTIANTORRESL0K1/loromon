@@ -62,14 +62,12 @@ services:
     networks:
       - app-network
 
-  cloudbeaver:
-    image: dbeaver/cloudbeaver:latest
-    container_name: cloudbeaver
+  adminer:
+    image: adminer:latest
+    container_name: adminer
     restart: unless-stopped
     ports:
-      - "8978:8978"
-    volumes:
-      - cloudbeaver-data:/opt/cloudbeaver/workspace
+      - "8080:8080"
     depends_on:
       db:
         condition: service_healthy
@@ -82,4 +80,3 @@ networks:
 
 volumes:
   mysql-data:
-  cloudbeaver-data:
