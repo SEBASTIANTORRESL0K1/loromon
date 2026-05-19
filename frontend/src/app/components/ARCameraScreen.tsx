@@ -53,6 +53,11 @@ function Model({ url, capturing }: { url: string; capturing: boolean }) {
     // Alinear la base del modelo (pies) exactamente en y = 0
     clone.position.y = -box.min.y * targetScale;
 
+    // Parche manual: Si es la trabajadora2, la bajamos un poco más extra porque su modelo tiene mucho espacio vacío abajo
+    if (url.includes('trabajadora2.glb')) {
+      clone.position.y -= 0.5;
+    }
+
     // Desactivar frustum culling para evitar que desaparezca en ciertos ángulos
     clone.traverse((child: any) => {
       if (child.isMesh) {
@@ -61,7 +66,7 @@ function Model({ url, capturing }: { url: string; capturing: boolean }) {
     });
 
     return clone;
-  }, [scene]);
+  }, [scene, url]);
 
   // Animación de rotación y flotación
   useFrame((state) => {
@@ -75,20 +80,63 @@ function Model({ url, capturing }: { url: string; capturing: boolean }) {
         modelRef.current.scale.lerp(new THREE.Vector3(1, 1, 1), 0.1);
         modelRef.current.rotation.y += 0.01;
         // Efecto sutil de flotación (sobre el eje corregido)
-        modelRef.current.position.y = -1.2 + (Math.sin(state.clock.elapsedTime) * 0.05);
+        modelRef.current.position.y = -1.6 + (Math.sin(state.clock.elapsedTime) * 0.05);
       }
     }
   });
 
   return (
-    <group ref={modelRef} position={[0, -1.2, 0]}>
+    <group ref={modelRef} position={[0, -1.6, 0]}>
       <primitive object={normalizedScene} />
+    </group>
+  );
+}
+
+// Componente para la Pokebola con animación de lanzamiento
+function PokeballModel({ thrown, onHit, url, capturing }: { thrown: boolean, onHit: () => void, url: string, capturing: boolean }) {
+  const { scene } = useGLTF(url);
+  const ballRef = useRef<THREE.Group>(null);
+  
+  // Posiciones: de abajo (cerca de la cámara) hacia el personaje
+  const initialPos = new THREE.Vector3(0, -1, 1.5);
+  const targetPos = new THREE.Vector3(0, -0.5, 0);
+
+  useFrame(() => {
+    if (!ballRef.current) return;
+
+    if (thrown) {
+      // Movimiento hacia el objetivo
+      ballRef.current.position.lerp(targetPos, 0.1);
+      // Rotación de lanzamiento
+      ballRef.current.rotation.x -= 0.3;
+      // Escala se reduce al alejarse
+      ballRef.current.scale.lerp(new THREE.Vector3(0.15, 0.15, 0.15), 0.1);
+
+      // Detectar "impacto"
+      if (ballRef.current.position.distanceTo(targetPos) < 0.2) {
+        onHit();
+      }
+    } else if (capturing) {
+        // Desaparecer después del impacto
+        ballRef.current.scale.lerp(new THREE.Vector3(0, 0, 0), 0.2);
+    } else {
+      // Posición de espera
+      ballRef.current.position.lerp(initialPos, 0.1);
+      ballRef.current.scale.lerp(new THREE.Vector3(0.4, 0.4, 0.4), 0.1);
+      ballRef.current.rotation.y += 0.02;
+    }
+  });
+
+  return (
+    <group ref={ballRef}>
+      <primitive object={scene} />
     </group>
   );
 }
 
 export function ARCameraScreen({ onCapture, onClose, user, lugar }: ARCameraScreenProps) {
   const [capturing, setCapturing] = useState(false);
+  const [isThrown, setIsThrown] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [personajeActual, setPersonajeActual] = useState<Personaje | null>(null);
@@ -96,6 +144,7 @@ export function ARCameraScreen({ onCapture, onClose, user, lugar }: ARCameraScre
   
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
+  const touchStart = useRef<number | null>(null);
 
   useEffect(() => {
     if (lugar) {
@@ -157,6 +206,7 @@ export function ARCameraScreen({ onCapture, onClose, user, lugar }: ARCameraScre
           setIndexPersonaje(1);
           setPersonajeActual(lugar.personaje2);
           setCapturing(false);
+          setIsThrown(false);
           toast.success(`¡${personajeActual.nombre_personaje} capturado! +${result.puntosObtenidos} pts`);
         } else {
           onCapture(result.puntosObtenidos);
@@ -166,6 +216,7 @@ export function ARCameraScreen({ onCapture, onClose, user, lugar }: ARCameraScre
     } catch (err: any) {
       console.error("Error detallado en handleCapture:", err);
       setCapturing(false);
+      setIsThrown(false);
       
       if (err.message.includes('ya ha sido capturado')) {
         toast.error("Ya capturaste a este personaje aquí.");
@@ -186,15 +237,35 @@ export function ARCameraScreen({ onCapture, onClose, user, lugar }: ARCameraScre
     return `${baseUrl}/${path}`;
   };
 
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStart.current = e.touches[0].clientY;
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStart.current === null || isThrown || capturing) return;
+    const touchEnd = e.changedTouches[0].clientY;
+    const diff = touchStart.current - touchEnd;
+    
+    // Si el deslizamiento es hacia arriba (al menos 100px)
+    if (diff > 80) {
+      setIsThrown(true);
+    }
+    touchStart.current = null;
+  };
+
   return (
-    <Box sx={{ 
-      height: '100dvh', 
-      position: 'relative', 
-      bgcolor: 'black', 
-      overflow: 'hidden',
-      display: 'flex',
-      flexDirection: 'column'
-    }}>
+    <Box 
+      sx={{ 
+        height: '100dvh', 
+        position: 'relative', 
+        bgcolor: 'black', 
+        overflow: 'hidden',
+        display: 'flex',
+        flexDirection: 'column'
+      }}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+    >
       {/* Video de fondo (Capa 0) */}
       <video
         ref={videoRef}
@@ -224,11 +295,17 @@ export function ARCameraScreen({ onCapture, onClose, user, lugar }: ARCameraScre
             
             <Suspense fallback={null}>
               <Model url={getModelUrl(personajeActual.ruta_modelo)} capturing={capturing} />
+              <PokeballModel 
+                url={getModelUrl('models/pokeball-lowpoly.glb')} 
+                thrown={isThrown} 
+                onHit={handleCapture}
+                capturing={capturing}
+              />
               <Environment preset="city" />
-              <ContactShadows position={[0, -1.2, 0]} opacity={0.4} scale={5} blur={2} far={1} />
+              <ContactShadows position={[0, -1.6, 0]} opacity={0.4} scale={5} blur={2} far={1} />
             </Suspense>
 
-            <OrbitControls enableZoom={false} enablePan={false} />
+            <OrbitControls enableZoom={false} enablePan={false} enableRotate={false} />
           </Canvas>
         </Box>
       )}
@@ -358,46 +435,62 @@ export function ARCameraScreen({ onCapture, onClose, user, lugar }: ARCameraScre
         </Card>
       </Box>
 
-      {/* Pie de UI: Botón de Captura (Capa 2) */}
-      <Box 
-        sx={{ 
-          position: 'absolute', 
-          bottom: 0, 
-          left: 0, 
-          right: 0, 
-          p: 4,
-          pb: 'calc(30px + env(safe-area-inset-bottom))',
-          display: 'flex', 
-          justifyContent: 'center', 
-          alignItems: 'center',
-          zIndex: 100,
-          pointerEvents: 'none'
-        }}
-      >
-        <Fab
-          color="primary"
-          onClick={handleCapture}
-          disabled={capturing || loading || !!error}
-          aria-label="Capturar personaje"
+      {/* Indicador de Gesto (Capa 2) */}
+      {!loading && !error && !isThrown && !capturing && (
+        <Box 
           sx={{ 
-            width: { xs: 80, sm: 90 }, 
-            height: { xs: 80, sm: 90 }, 
-            bgcolor: 'primary.main',
-            boxShadow: '0 8px 32px rgba(90, 92, 224, 0.4)',
-            border: '3px solid #ffffff', // Borde blanco de alto contraste
-            pointerEvents: 'auto',
-            transition: 'all 0.2s',
-            '&:active': { transform: 'scale(0.9)' },
-            '&:hover': { bgcolor: '#4338ca', border: '3px solid #ffffff' }
+            position: 'absolute', 
+            bottom: 40, 
+            left: 0, 
+            right: 0, 
+            display: 'flex', 
+            flexDirection: 'column',
+            alignItems: 'center',
+            zIndex: 100,
+            pointerEvents: 'none',
+            animation: 'bounce 2s infinite'
           }}
         >
-          {capturing ? (
-            <CircularProgress size={40} color="inherit" />
-          ) : (
-            <CameraAlt sx={{ fontSize: { xs: 35, sm: 40 }, color: 'white' }} />
-          )}
-        </Fab>
-      </Box>
+          <Typography 
+            variant="caption" 
+            sx={{ 
+              color: 'white', 
+              fontWeight: 'bold', 
+              textShadow: '0 2px 4px rgba(0,0,0,0.5)',
+              mb: 1
+            }}
+          >
+            ¡DESLIZA HACIA ARRIBA PARA CAPTURAR!
+          </Typography>
+          <Box sx={{ 
+            width: 4, 
+            height: 40, 
+            bgcolor: 'rgba(255,255,255,0.5)', 
+            borderRadius: 2,
+            position: 'relative',
+            '&::after': {
+              content: '""',
+              position: 'absolute',
+              top: 0,
+              left: -4,
+              width: 12,
+              height: 12,
+              borderTop: '3px solid white',
+              borderLeft: '3px solid white',
+              transform: 'rotate(45deg)'
+            }
+          }} />
+        </Box>
+      )}
+
+      {/* Estilos para animaciones */}
+      <style>{`
+        @keyframes bounce {
+          0%, 20%, 50%, 80%, 100% {transform: translateY(0);}
+          40% {transform: translateY(-10px);}
+          60% {transform: translateY(-5px);}
+        }
+      `}</style>
 
       {/* Mensajes de Error con contraste */}
       {error && (
